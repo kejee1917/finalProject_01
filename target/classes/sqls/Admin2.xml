@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Admin2">
+
+<select id="getOrderList" parameterType="verni.co.kr.admin.AdminParam" resultType="verni.co.kr.order.OrderDto">
+	SELECT O_NO, O_NUMBER, M_ID, S_ADDRESS, S_ADDRESS2, O_TIME, OD_PERIOD, OD_STATUS , P_NAME, P_NO, MS_NO, P_BRAND, P_NEWIMAGE1, OD_STARTDATE, OD_ENDDATE, OD_AMOUNT, OD_AS, MS_CATEGORY, OD_NO
+	FROM  (SELECT ROW_NUMBER()OVER(ORDER BY MS_STATUS ASC, O_TIME DESC )AS RNUM,  M.MS_CATEGORY,
+		  O_NO, O.O_NUMBER, M_ID, S_ADDRESS, S_ADDRESS2, O_TIME, OD_PERIOD, OD.OD_STATUS , P_NAME, P.P_NO, MS_NO, P.P_BRAND, P.P_NEWIMAGE1, OD.OD_STARTDATE, OD.OD_ENDDATE, OD.OD_AMOUNT, OD.OD_AS, OD_NO
+		  FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P, MESSAGE M
+		  WHERE  O.O_NUMBER = OD.O_NUMBER
+		  AND    OD.P_NO = P.P_NO
+		  AND    M.MS_NOS = O.O_NO
+		   AND   M.MS_CATEGORY = '주문'
+		  AND 1=1
+		  <if test="choice != null and choice != '' 
+				and search != null and search != ''">
+				<if test="choice == '주문번호'">
+		      		AND O.O_NUMBER=#{search}
+		      	</if>
+		      	<if test="choice == '아이디'">
+		      		AND O.M_ID=#{search}
+		      	</if>
+		      	<if test="choice == '상품명'">
+		      		AND P.P_NAME LIKE '%'||#{search}||'%'
+		      	</if>
+		      	<if test="choice == '현재현황'">
+		      		AND OD.OD_STATUS LIKE '%'||#{search}||'%'
+		      	</if>
+		      	<if test="choice == 'NO'">
+		      		AND O_NO=#{search}
+		      	</if>
+    		</if>
+			ORDER BY MS_STATUS ASC, O_TIME DESC ) 
+			WHERE RNUM BETWEEN #{start} AND #{end} 
+</select>
+
+<select id="getTotalCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) 
+	FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P, MESSAGE M
+		  WHERE O.O_NUMBER = OD.O_NUMBER
+		  AND   OD.P_NO = P.P_NO
+		  AND   M.MS_NOS = O.O_NO
+		  AND   M.MS_CATEGORY = '주문'
+	AND 1=1
+		<if test="choice != null and choice != '' and search != null and search != ''">
+			<if test="choice == '주문번호'">
+		    	AND O.O_NUMBER=#{search}
+		    </if>
+		    <if test="choice == '아이디'">
+		    	AND O.M_ID=#{search}
+		    </if>
+		    <if test="choice == '상품명'">
+		    	AND P.P_NAME LIKE '%'||#{search}||'%'
+		    </if>
+		    <if test="choice == '현재현황'">
+		    	AND OD_STATUS LIKE '%'||#{search}||'%'
+		    </if>
+		    <if test="choice == 'NO'">
+		    	AND O_NO=#{search}
+		    </if>
+		</if>
+</select>
+
+
+<update id="orderStatusUpdate" parameterType="verni.co.kr.order.OrderDetailDto">
+UPDATE ORDER_DETAIL 
+SET OD_STATUS=#{od_status} 
+WHERE OD_NO=#{od_no}
+</update>
+
+<!-- 배송완료 업데이트 -->
+<update id="postSuccessUpdate" parameterType="verni.co.kr.order.OrderDetailDto">
+UPDATE ORDER_DETAIL
+SET OD_STATUS=#{od_status}, OD_STARTDATE=SYSDATE, OD_ENDDATE=SYSDATE + TO_NUMBER(SUBSTR(#{od_period}, 1, 1))
+WHERE OD_NO=#{od_no}
+</update>
+
+
+<!-- 배송완료시 회원등급 업데이트 -->
+<update id="memberLevelUpdate" parameterType="String">
+UPDATE MEMBER 
+SET M_LEVEL =  
+CASE
+    WHEN M_TOTAL BETWEEN 0 AND 299999 THEN 2
+    WHEN M_TOTAL BETWEEN 300000 AND 499999 THEN 3
+    WHEN M_TOTAL BETWEEN 500000 AND 699999 THEN 4
+ELSE 5   
+END
+WHERE M_ID=#{m_id}
+</update>
+
+<!-- 회수완료시 대여가능 업데이트 -->
+<update id="productStatusUpdate" parameterType="String">
+UPDATE PRODUCT SET P_STATUS='대여가능'
+WHERE P_NO=#{p_no}
+</update>
+
+
+<!-- 등업 쿠폰 발행 관련 -->
+<!-- 회원의 레벨 가져오기 -->
+<select id="getMemberLever" parameterType="String" resultType="Integer">
+SELECT M_LEVEL FROM MEMBER WHERE M_ID=#{m_id}
+</select>
+<!-- 쿠폰발행여부 -->
+<select id="getCouponNum" parameterType="String" resultType="Integer">
+ SELECT NVL(COUNT(*), 0)
+ FROM MEMBER_COUPON MC, COUPON C
+ WHERE MC.CP_NO = C.CP_NO
+ AND MC.M_ID=#{m_id}
+ AND C.CP_NO BETWEEN 1 AND 12
+</select>
+<!-- 실버쿠폰 가져오기 -->
+<select id="getSiverCouponList" resultType="verni.co.kr.benefit.CouponDto">
+SELECT CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE
+FROM COUPON
+WHERE CP_NO BETWEEN 4 AND 6
+</select>
+<!-- 골드쿠폰 가져오기 -->
+<select id="getGoldCouponList" resultType="verni.co.kr.benefit.CouponDto">
+SELECT CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE
+FROM COUPON
+WHERE CP_NO BETWEEN 7 AND 9
+</select>
+<!-- 다이아쿠폰 가져오기 -->
+<select id="getDiaCouponList" resultType="verni.co.kr.benefit.CouponDto">
+SELECT CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE
+FROM COUPON
+WHERE CP_NO BETWEEN 10 AND 12
+</select>
+<update id="setRegiCoupon" parameterType="java.util.List">
+	<foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL">
+		INTO MEMBER_COUPON(MC_NO, CP_NO, M_ID, MC_STARTDATE, MC_ENDDATE, MC_USE)
+		VALUES(GET_SEQ('NO_MEMBER_COUPON'), #{item.cp_no}, #{item.m_id}, SYSDATE, SYSDATE+7, '사용가능')
+	</foreach>
+</update>
+
+
+</mapper>

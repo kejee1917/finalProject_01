@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Wish">
+<insert id="addWish" parameterType="verni.co.kr.wish.WishDto">
+	INSERT INTO WISH
+	VALUES(NO_WISH.NEXTVAL, #{m_id}, #{p_no})
+</insert>
+<delete id="delWish" parameterType="verni.co.kr.wish.WishDto">
+	DELETE WISH
+	WHERE M_ID=#{m_id}
+	AND P_NO=#{p_no}
+</delete>
+<update id="addWishCount" parameterType="verni.co.kr.wish.WishDto">
+	UPDATE PRODUCT SET P_WISHCOUNT=P_WISHCOUNT+1 WHERE P_NO=#{p_no}
+</update>
+<update id="delWishCount" parameterType="verni.co.kr.wish.WishDto">
+	UPDATE PRODUCT SET P_WISHCOUNT=P_WISHCOUNT-1 WHERE P_NO=#{p_no}
+</update>
+
+<select id="getWishList" parameterType="verni.co.kr.wish.WishDto" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) FROM WISH 
+	WHERE M_ID=#{m_id} AND P_NO=#{p_no}
+</select>
+
+<select id="getWishMember" parameterType="String" resultType="verni.co.kr.wish.WishDto">
+	SELECT P_NO FROM WISH
+	WHERE M_ID=#{m_id}
+</select>
+
+<select id="getWishDetail" parameterType="verni.co.kr.wish.WishDto" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) FROM WISH 
+	WHERE M_ID=#{m_id} AND P_NO=#{p_no}
+</select>
+
+<!-- 0805 엄추가 -->
+<select id="wishList" parameterType="String" resultType="verni.co.kr.wish.WishDto">
+	SELECT W.W_NO, W.M_ID, W.P_NO, P.P_NAME, P.P_BRAND, P.P_NEWIMAGE1, P.P_STATUS
+	FROM WISH W, PRODUCT P
+	WHERE W.P_NO = P.P_NO
+	AND M_ID=#{m_id}
+	ORDER BY W.W_NO DESC
+</select>
+
+<delete id="deleteWish" parameterType="verni.co.kr.wish.WishDto">
+	DELETE WISH
+	WHERE W_NO=#{w_no}
+</delete>
+<!-- 0805 엄추가 -->
+</mapper>

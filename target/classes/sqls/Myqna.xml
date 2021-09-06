@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Myqna">
+
+<select id="myqnaList" parameterType="Map" resultType="verni.co.kr.myqna.MyqnaDto">
+   SELECT MQ_NO, MQ_REF, M_ID, MQ_TITLE, MQ_CONTENT, MQ_CATEGORY, MQ_TYPE, MQ_STATUS, MQ_FILENAME,
+         MQ_NEWFILENAME, MQ_DEL, MQ_WDATE
+   FROM (SELECT ROW_NUMBER()OVER(ORDER BY MQ_NO DESC) AS RNUM, MQ_NO, MQ_REF, M_ID, MQ_TITLE, MQ_CONTENT, 
+            MQ_CATEGORY, MQ_TYPE, MQ_STATUS, MQ_FILENAME, MQ_NEWFILENAME, MQ_DEL, MQ_WDATE
+        FROM MYQNA
+      WHERE M_ID=#{m_id} AND MQ_DEL=0
+      <if test="search == 'all'">
+         AND (MQ_STATUS=1 OR MQ_STATUS=2)
+      </if>
+      <if test="search =='waiting'">
+         AND MQ_STATUS=1
+      </if>
+      <if test="search =='complete'">
+         AND MQ_STATUS=2
+      </if>
+      ORDER BY MQ_NO DESC)
+   WHERE RNUM BETWEEN ${start} AND ${end}   
+</select>
+
+<insert id="writeMyqna" parameterType="verni.co.kr.myqna.MyqnaDto">
+   INSERT INTO MYQNA(MQ_NO, MQ_REF, M_ID, MQ_TITLE, MQ_CONTENT, MQ_CATEGORY, MQ_TYPE, MQ_STATUS, MQ_FILENAME,
+                 MQ_NEWFILENAME, MQ_DEL, MQ_WDATE)
+   VALUES(NO_MYQNA.NEXTVAL, 0, #{m_id}, #{mq_title}, #{mq_content}, #{mq_category}, 1, 1, #{mq_filename}, #{mq_newfilename}, 0, SYSDATE)
+</insert>
+
+<select id="myqnaAllCount" parameterType="Map" resultType="Integer">
+   SELECT NVL(COUNT(*), 0)
+   FROM MYQNA
+   WHERE M_ID=#{m_id} AND MQ_DEL=0
+   <if test="search == 'all'">
+      AND (MQ_STATUS=1 OR MQ_STATUS=2)
+   </if>
+   <if test="search =='waiting'">
+      AND MQ_STATUS=1
+   </if>
+   <if test="search =='complete'">
+      AND MQ_STATUS=2
+   </if>
+   ORDER BY MQ_NO DESC   
+</select>
+ 
+<select id="readMyqna" parameterType="Integer" resultType="verni.co.kr.myqna.MyqnaDto">
+   SELECT MQ_NO, MQ_REF, M_ID, MQ_TITLE, MQ_CONTENT, MQ_CATEGORY, MQ_TYPE, MQ_STATUS, MQ_FILENAME,
+         MQ_NEWFILENAME, MQ_DEL, MQ_WDATE
+   FROM MYQNA
+   WHERE MQ_NO=#{mq_no}
+</select>
+
+<!-- 시퀀스 맥스값 구하기 -->
+<select id="getMyqnaMaxNo" resultType="Integer">
+	SELECT NVL(MAX(MQ_NO), 1) FROM MYQNA
+</select>
+
+
+<!-- 관리자가 쓴 답글 가져오기 -->
+<select id="getMyqnaReply" resultType="verni.co.kr.myqna.MyqnaReplyDto">
+	SELECT MQR_NO, MQ_NO, MQR_WDATE, MQR_CONTENT
+	FROM MQ_REPLY
+	WHERE MQ_NO=#{mq_no}
+</select>
+
+<!-- 수정하기 -->
+<update id="myqnaUpdateAf" parameterType="verni.co.kr.myqna.MyqnaDto">
+	UPDATE MYQNA
+	SET MQ_TITLE=#{mq_title}, MQ_CONTENT=#{mq_content}, MQ_CATEGORY=#{mq_category}, MQ_FILENAME=#{mq_filename,jdbcType=VARCHAR}, 
+		MQ_NEWFILENAME=#{mq_newfilename}, MQ_WDATE=SYSDATE
+	WHERE MQ_NO=#{mq_no}
+</update>
+
+<!-- 삭제하기 -->
+<update id="myqnaDelete" parameterType="Integer">
+	UPDATE MYQNA
+	SET MQ_DEL=1
+	WHERE MQ_NO=#{mq_no}
+</update>
+<!-- 0831 메세지 삭제 -->
+<delete id="messageDel" parameterType="Integer">
+	DELETE MESSAGE
+	WHERE MS_NOS=#{mq_no}
+</delete>
+
+<!-- 0830 상품 큐앤에이 리스트 -->
+<select id="myproductqnaList" parameterType="Map" resultType="verni.co.kr.qna.QnaDto">
+   SELECT Q_NO, M_ID, P_NO, Q_TITLE, Q_CATE, Q_CONTENT, Q_SECRIT, Q_DEL, Q_STATUS, Q_WDATE, P_BRAND, P_NEWIMAGE1, P_NAME
+   FROM (SELECT ROW_NUMBER()OVER(ORDER BY Q.Q_NO DESC) AS RNUM, Q.Q_NO, Q.M_ID, Q.P_NO, Q.Q_TITLE, Q.Q_CATE, Q.Q_CONTENT, 
+   		Q.Q_SECRIT, Q.Q_DEL, Q.Q_STATUS, Q.Q_WDATE, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME
+        FROM QNA Q, PRODUCT P
+      	WHERE Q.P_NO=P.P_NO
+      	AND Q.M_ID=#{m_id} AND Q.Q_DEL=0
+      <if test="search == 'all'">
+         AND (Q.Q_STATUS='답변대기' OR Q.Q_STATUS='답변완료')
+      </if>
+      <if test="search =='waiting'">
+         AND Q.Q_STATUS='답변대기'
+      </if>
+      <if test="search =='complete'">
+         AND Q.Q_STATUS='답변완료'
+      </if>
+      ORDER BY Q.Q_NO DESC)
+   WHERE RNUM BETWEEN ${start} AND ${end}   
+</select>
+
+
+<select id="qnaAllCount" parameterType="Map" resultType="Integer">
+   SELECT NVL(COUNT(*), 0)
+   FROM QNA
+   WHERE M_ID=#{m_id} AND Q_DEL=0
+   <if test="search == 'all'">
+      AND (Q_STATUS='답변대기' OR Q_STATUS='답변완료')
+   </if>
+   <if test="search =='waiting'">
+      AND Q_STATUS='답변대기'
+   </if>
+   <if test="search =='complete'">
+      AND Q_STATUS='답변완료'
+   </if>
+   ORDER BY Q_NO DESC   
+</select>
+
+<!-- 상품문의글 읽기 -->
+<select id="getQna" resultType="verni.co.kr.qna.QnaDto">
+	SELECT Q.Q_NO, Q.M_ID, Q.P_NO, Q.Q_TITLE, Q.Q_CATE, Q.Q_CONTENT, 
+	   		Q.Q_SECRIT, Q.Q_DEL, Q.Q_STATUS, Q.Q_WDATE, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME
+	FROM QNA Q, PRODUCT P
+	WHERE Q.P_NO=P.P_NO
+	AND Q.Q_NO=#{q_no}
+</select>
+
+<!-- 상품문의글의 답글 읽기 -->
+<select id="getQnaReply" resultType="verni.co.kr.qna.QnaDto" >
+	SELECT QR_NO, Q_NO, QR_WDATE, QR_CONTENT
+	FROM Q_REPLY
+	WHERE Q_NO=#{q_no}
+</select>
+
+<!-- 상품문의글 수정 -->
+<update id="myproductqnaUpdate" parameterType="verni.co.kr.qna.QnaDto">
+	UPDATE QNA
+	SET Q_TITLE=#{q_title}, Q_CATE=#{q_cate}, Q_CONTENT=#{q_content}, Q_WDATE=SYSDATE, Q_SECRIT=#{q_secrit}
+	WHERE Q_NO=#{q_no}
+</update>
+
+</mapper>  

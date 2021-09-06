@@ -1,0 +1,240 @@
+@charset "UTF-8";
+.faq_nav {
+  margin: 0 auto;
+}
+ 
+.faq_nav ul {
+  text-align: left;
+}
+ 
+.faq_nav ul li {
+  display: inline-block;
+}
+ 
+.faq_nav ul li a {
+  padding: 3px; 
+  text-transform:uppercase;
+  color: rgba(0, 0, 0, 1);
+  font-size: 12px;
+  text-decoration: none;
+  display: block;
+}
+
+summary {
+	cursor: pointer;
+}
+
+summary {
+	list-style: none;
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+.faq-title-box {
+	padding: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	border: 5px solid #e8e8e8;
+	color: #404040;
+	background: #dfdfdf;
+}
+
+.faq-title-box.typeThin {
+	border-width: 1px;
+	border-color: #d7d5d5;
+	background: white;
+}
+
+.faq-content-box {
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 0;
+	border: 3px solid #e8e8e8;
+	color: #404040;
+	background: white;
+	min-height: 50px;
+	
+}
+
+.faq-content-box.typeThin {
+	border-width: 1px;
+	border-color: #d7d5d5;
+}
+
+/* navi  */
+.wrapper {
+	width: 100%;
+	color: white;
+	line-height: 24px;
+	padding-left: 11%; padding-right: 11%; height: auto;
+	
+	
+}
+
+
+.tabs li {
+	float: left;
+	width: 14.2857143%;
+	list-style: none;
+	align-items: center;
+}
+
+.tabs a {
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	color: #888;
+	padding: 10px 0;
+	border-bottom: 2px solid #888;
+	background: #f7f7f7;
+}
+
+.tabs a:hover, .tabs a.active {
+	background: #ddd;
+}
+
+
+
+.clearfix:after {
+	display: table;
+	clear: both;
+	margin: auto;
+	
+}
+
+/* 상단부분 */
+.container-wrap-1410 {
+  min-height: 0;
+}
+container-wrap-1410 {
+  background: #fff;
+  min-width: 1000px;
+  min-height: 794px;
+  z-index: 0;
+}
+.common-container-1410 {
+  overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
+  width: 1000px;
+  height: auto;
+}
+.common-container-1410 {
+  background: #fff;
+}
+
+.common-container-1410 {
+  overflow: visible;
+  clear: both;
+}
+
+.cs-container {
+  margin-bottom: 130px;
+}
+/* line 14, ../../../app/assets/stylesheets/cv/writings.css.scss */
+.cs-container .cs-noti-box {
+  overflow: hidden;
+  color: #777;
+}
+/* line 18, ../../../app/assets/stylesheets/cv/writings.css.scss */
+.cs-container .cs-noti-box .noti-text-big {
+  color: #282828;
+}
+/* line 21, ../../../app/assets/stylesheets/cv/writings.css.scss */
+.cs-container .cs-noti-box .call-num {
+  display: inline-block;
+  margin-top: 20px;
+}
+.cs-container .cs-noti-box-1 {
+  border: 10px solid #f5f5f5;
+  padding: 36px;
+  text-align: center;
+}
+.cs-container .cs-noti-box-2 .noti-box-col {
+  position: relative;
+  float: left;
+
+  margin-top: 80px;
+  margin-bottom: 10px;
+  margin-left: 70px;
+  width: 428px;
+  height: 135px;
+  color: #636363;
+}
+.cs-container .cs-noti-box-2 .noti-box-col .noti-text-big {
+  margin-bottom: 10px;
+}
+.cs-container .cs-noti-box-2 .noti-box-col:first-child {
+  border-right: 1px solid #ebebeb;
+}
+.cs-container .qna-link {
+  display: block;
+  margin-top: 16px;
+  padding: 1px 6px;
+  width: 28px;
+  border-radius: 10px;
+  background-color: #ec1c24;
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+}
+.cs-container .cs-icon {
+  position: absolute;
+  width: 29px;
+  height: 30px;
+  top: -29px;
+  left: -30px;
+}
+.cs-container .cs-icon.qna {
+  background: url(https://cdn.reebonzkorea.co.kr/assets/writings/qna_ic_obo-07c38707acfa756edd9c933c12c9bfed.png) 0 0 no-repeat;
+}
+.cs-container .cs-icon.channel-talk {
+  background: url(https://cdn.reebonzkorea.co.kr/assets/writings/qna_channel_talk-31b4f2f0c888629ac3713b1d1ffdb805.png) 0 0 no-repeat;
+  background-size: 29px 30px;
+}
+.cs-container .cs-nav-tabs {
+  overflow: hidden;
+}
+.cs-container .cs-tab {
+  display: block;
+  float: left;
+  width: 50%;
+  cursor: pointer;
+}
+.cs-container .cs-tab .tab-text {
+  display: block;
+  padding: 15px 0;
+  border: 1px solid #b2b2b2;
+  border-bottom: 2px solid #231f20;
+  text-align: center;
+  font-size: 15px;
+  background-color: #efefef;
+  color: #999;
+}
+.cs-container .cs-tab .tab-text.active {
+  border-width: 2px;
+  border-color: #231f20;
+  border-bottom: none;
+  padding-bottom: 16px;
+  background-color: #fff;
+  font-weight: bold;
+  color: #333;
+}
+.cs-container .cs-tab-body {
+  display: none;
+}
+.cs-container .cs-tab-body.active {
+  display: block;
+}
+.cs-header-box {
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+.cs-header-box .cs-header-text {
+  font-size: 26px;
+  color: #282828;
+}
+

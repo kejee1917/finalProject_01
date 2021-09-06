@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Likes">
+
+<!-- 좋아요 -->
+<insert id="likesAdd" parameterType="verni.co.kr.likes.LikesDto">
+	INSERT INTO LIKES_RV(L_NO, M_ID, R_NO)
+	VALUES(NO_LIKES_RV.NEXTVAL, #{m_id}, #{r_no})
+</insert>
+
+<!-- 좋아요 취소 -->
+<delete id="likesDelete" parameterType="verni.co.kr.likes.LikesDto">
+	DELETE LIKES_RV
+	WHERE M_ID=#{m_id}
+	AND R_NO=#{r_no}
+</delete>
+
+<!-- 좋아요 했을 시 플러스 -->
+<update id="likesCount" parameterType="verni.co.kr.likes.LikesDto">
+	UPDATE REVIEW SET R_LIKECOUNT=R_LIKECOUNT+1 WHERE R_NO=#{r_no}
+</update>
+
+<!-- 좋아요 취소 시 마이나스 -->
+<update id="likesDelCount" parameterType="verni.co.kr.likes.LikesDto">
+	UPDATE REVIEW SET R_LIKECOUNT=R_LIKECOUNT-1 WHERE R_NO=#{r_no}
+</update>
+
+
+
+<!-- 색깔 빨갛게 보이는 용도 -->
+<select id="likesList" parameterType="verni.co.kr.review.ReviewDto" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) FROM LIKES_RV 
+	WHERE M_ID=#{m_id} AND R_NO=#{r_no}
+</select>
+
+</mapper>

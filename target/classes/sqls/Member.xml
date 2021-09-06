@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Member">
+
+<select id="idcheck" parameterType="String" resultType="Integer">
+   SELECT NVL(COUNT(*),0)
+   FROM MEMBER
+   WHERE M_ID=#{m_id}
+</select>
+
+<insert id="joinMember" parameterType="verni.co.kr.member.MemberDto">
+   INSERT INTO MEMBER(M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, M_ADDRESS_DETAIL, M_EMAIL, M_PHONENUM, M_JOINDATE,
+               M_LEVEL, M_POINT, M_TOTAL, M_BIRTH, M_GENDER, M_REASON)
+   VALUES(NO_MEMBER.NEXTVAL, #{m_name}, #{m_id}, #{m_password}, #{m_address_postcode}, #{m_address_primary}, #{m_address_detail},
+         #{m_email}, #{m_phoneNum}, SYSDATE, 2, 2000, 0, #{m_birth}, #{m_gender}, #{m_reason,jdbcType=VARCHAR})
+</insert>
+
+<!-- 가입하자마자 포인트 -->
+<insert id="setPoint" parameterType="String">
+   INSERT INTO POINT(P_NO, M_ID, P_STARTDATE, P_ENDDATE, P_POINT, P_NAME, P_USE)
+   VALUES(NO_POINT.NEXTVAL, #{m_id}, SYSDATE, SYSDATE+3, 2000, '가입축하', '사용가능')
+</insert>
+
+<select id="getPoint" parameterType="String" resultType="verni.co.kr.benefit.PointDto">
+   SELECT P_NO, M_ID, P_STARTDATE, P_ENDDATE, P_POINT, P_NAME, P_USE
+   FROM POINT
+   WHERE M_ID=#{m_id}
+</select>
+
+<insert id="setPointUse" parameterType="verni.co.kr.benefit.PointDto">
+   INSERT INTO POINT_USE(PU_NO, P_NO, PU_CATEGORY, O_NUMBER, PU_AMOUNT, PU_NAME, PU_USEDATE)
+   VALUES(NO_POINT_USE.NEXTVAL, #{p_no}, '적립', 0, #{p_point}, #{p_name}, #{p_startdate})
+</insert>
+
+
+<!-- 가입하자마자 쿠폰 -->
+<!-- <insert id="setCoupon" parameterType="verni.co.kr.benefit.CouponDto">
+   <selectKey resultType="Integer" keyProperty="cp_no" order="BEFORE">
+      SELECT CP_NO
+      FROM COUPON
+      WHERE CP_NO BETWEEN 1 AND 3
+   </selectKey>
+   INSERT INTO MEMBER_COUPON(MC_NO, CP_NO, M_ID, MC_STARTDATE, MC_ENDDATE, MC_USE)
+   VALUES(NO_MEMBER_COUPON.NEXTVAL, 1, #{m_id}, SYSDATE, SYSDATE+7, '사용가능')
+</insert> -->
+
+
+<update id="setRegiCoupon" parameterType="java.util.List">
+   <foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL">
+      INTO MEMBER_COUPON(MC_NO, CP_NO, M_ID, MC_STARTDATE, MC_ENDDATE, MC_USE)
+      VALUES(GET_SEQ('NO_MEMBER_COUPON'), #{item.cp_no}, #{item.m_id}, SYSDATE, SYSDATE+7, '사용가능')
+   </foreach>
+</update>
+
+
+
+<select id="getMember" parameterType="verni.co.kr.member.MemberDto" resultType="verni.co.kr.member.MemberDto">
+   SELECT  M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, 
+         M_ADDRESS_DETAIL, M_EMAIL, M_PHONENUM, M_JOINDATE,
+         M_LEVEL, M_POINT, M_TOTAL, M_BIRTH, M_GENDER, M_REASON
+   FROM MEMBER
+   WHERE M_ID=#{m_id} AND M_PASSWORD=#{m_password}
+</select>
+
+<select id="pwdFind" parameterType="verni.co.kr.member.MemberDto" resultType="String">
+   SELECT NVL(M_PASSWORD, '')
+   FROM MEMBER
+   WHERE M_ID=#{m_id} AND M_EMAIL=#{m_email}
+</select>
+
+
+<!-- <select id="idFind" parameterType="verni.co.kr.member.MemberDto" resultType="String">
+   SELECT NVL(M_ID, ''), NVL(M_PHONENUM, ''), NVL(M_JOINDATE, '')
+   FROM MEMBER
+   WHERE M_ID=#{m_id} AND M_PHONENUM=#{m_phoneNum}
+</select> -->
+
+<select id="idFind" parameterType="verni.co.kr.member.MemberDto" resultType="verni.co.kr.member.MemberDto">
+   SELECT M_ID, M_PHONENUM, M_JOINDATE, M_NAME
+   FROM MEMBER
+   WHERE M_NAME=#{m_name} AND M_PHONENUM=#{m_phoneNum}
+   AND M_LEVEL BETWEEN 1 AND 5
+</select>
+
+<update id="myInfoAf" parameterType="verni.co.kr.member.MemberDto">
+   UPDATE MEMBER
+   SET M_PASSWORD=#{m_password}, M_ADDRESS_POSTCODE=#{m_address_postcode}, 
+               M_ADDRESS_PRIMARY=#{m_address_primary}, M_ADDRESS_DETAIL=#{m_address_detail}, M_PHONENUM=#{m_phoneNum}, M_GENDER=#{m_gender}
+   WHERE M_ID=#{m_id}
+</update>
+
+<select id="getUpdateMember" parameterType="String" resultType="verni.co.kr.member.MemberDto">
+   SELECT M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, M_ADDRESS_DETAIL, M_EMAIL, M_PHONENUM, M_JOINDATE,
+         M_LEVEL, M_POINT, M_TOTAL, M_BIRTH, M_GENDER, M_REASON
+   FROM MEMBER
+   WHERE M_ID=#{m_id}
+</select>
+
+<update id="withdraw" parameterType="verni.co.kr.member.MemberDto">
+   UPDATE MEMBER
+   SET M_LEVEL=9, M_REASON=#{m_reason}
+   WHERE M_ID=#{m_id}
+</update>
+
+
+<!-- 네이버 관련 정보 가져오기 -->
+<select id="getNaverMember" parameterType="verni.co.kr.member.MemberDto" resultType="verni.co.kr.member.MemberDto">
+   SELECT M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, M_ADDRESS_DETAIL, M_EMAIL, M_PHONENUM, M_JOINDATE,
+         M_LEVEL, M_POINT, M_TOTAL, M_BIRTH, M_GENDER, M_REASON
+   FROM MEMBER
+   WHERE M_ID=#{m_id} AND M_NAME=#{m_name} AND M_EMAIL=#{m_email}
+</select>
+
+<!-- 네이버 정보 처음으로 insert -->
+<insert id="joinNaverMember" parameterType="verni.co.kr.member.MemberDto">
+   INSERT INTO MEMBER(M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, M_ADDRESS_DETAIL, M_EMAIL, M_PHONENUM, M_JOINDATE,
+               M_LEVEL, M_POINT, M_TOTAL, M_BIRTH, M_GENDER, M_REASON)
+   VALUES(NO_MEMBER.NEXTVAL, #{m_name}, #{m_id}, ' ', ' ', ' ', ' ',
+         #{m_email}, #{m_phoneNum}, SYSDATE, 2, 2000, 0, ' ', 1, #{m_reason,jdbcType=VARCHAR})
+</insert>
+
+</mapper>  

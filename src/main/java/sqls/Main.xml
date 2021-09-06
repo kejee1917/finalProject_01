@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Main">
+<select id="getPointUseUpdateList" resultType="verni.co.kr.benefit.PointDto">
+	SELECT P_NO, P_POINT, M_ID FROM POINT
+	WHERE TO_DATE(P_ENDDATE, 'YYYY/MM/DD') &lt; TO_DATE(SYSDATE, 'YYYY/MM/DD') 
+	AND P_USE='사용가능'
+</select>
+
+
+<update id="memberPointUpdate" parameterType="java.util.List">
+<if test="list.size == 0">
+UPDATE MEMBER_COUPON SET MC_USE='사용불가'
+	WHERE MC_NO IN (0)
+</if>
+<if test="list.size != 0">
+	<foreach item="item" index="index" collection="list"  >
+	 UPDATE MEMBER SET M_POINT=M_POINT-#{item.p_point} WHERE M_ID = #{item.m_id} 
+     </foreach>
+</if>     
+</update>
+
+
+
+<update id="setPointUse" parameterType="java.util.List">
+<if test="list.size == 0">
+	INSERT INTO TESTS
+	VALUES(NO_TESTS.NEXTVAL)
+</if>
+<if test="list.size != 0">
+	<foreach collection="list" item="ite" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL">
+	INTO POINT_USE(PU_NO, P_NO, PU_CATEGORY, O_NUMBER, PU_AMOUNT, PU_NAME, PU_USEDATE)
+	VALUES(GET_SEQ('NO_POINT_USE'), #{ite.p_no}, '만료', 0, #{ite.p_point}, '사용기간만료', SYSDATE)
+	</foreach>
+</if>	
+</update>
+
+<update id="pointUseUpdate" parameterType="java.util.List">
+<if test="list.size == 0">
+UPDATE POINT SET P_USE='사용불가'
+	WHERE P_NO IN (0)
+</if>
+<if test="list.size != 0">
+UPDATE POINT SET P_USE='사용불가', P_POINT=0
+	WHERE P_NO IN
+	<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+           #{item.p_no}
+     </foreach>
+</if>     
+</update>
+
+<select id="getCouponUseUpdateList" resultType="verni.co.kr.benefit.CouponDto">
+	SELECT MC_NO FROM MEMBER_COUPON
+	WHERE TO_DATE(MC_ENDDATE, 'YYYY/MM/DD') &lt; TO_DATE(SYSDATE, 'YYYY/MM/DD') 
+	AND MC_USE='사용가능'
+</select>
+
+<update id="couponUseUpdate" parameterType="java.util.List">
+<if test="list.size == 0">
+UPDATE MEMBER_COUPON SET MC_USE='사용불가'
+	WHERE MC_NO IN (0)
+</if>
+<if test="list.size != 0">
+	UPDATE MEMBER_COUPON SET MC_USE='사용불가'
+	WHERE MC_NO IN
+	<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+           #{item.mc_no}
+     </foreach>
+</if>     
+</update>
+
+
+<!--  한개씩 M_PORINT 업데이트용 -->
+<select id="getUserPointList" parameterType="String" resultType="verni.co.kr.benefit.PointDto">
+SELECT P_POINT
+FROM POINT
+WHERE M_ID=#{m_id}
+</select>
+
+<update id="mPointUpdate" parameterType="verni.co.kr.member.MemberDto">
+UPDATE MEMBER SET M_POINT=#{m_point}
+WHERE M_ID=#{m_id}
+</update>
+
+
+<!--  한개씩 M_PORINT 업데이트용 -->
+
+<!-- 베스트리뷰 가져오기 -->
+<select id="getBestReview" resultType="verni.co.kr.review.ReviewDto">
+	SELECT RP_NO, RP_WDATE, RP_CONTENT, 
+       	   M_ID, R_NO,  O_NUMBER, R_SCOPE, R_CONTENT, R_FILENAME, R_NEWFILENAME, R_LIKECOUNT, R_DEL,R_WDATE, 
+           P_NO, P_BRAND, P_NAME, P_TYPE1, P_NEWIMAGE1
+	FROM (SELECT ROW_NUMBER()OVER(ORDER BY b.R_LIKECOUNT DESC) AS RNUM, a.RP_NO, a.RP_WDATE, a.RP_CONTENT, 
+       	   b.M_ID, b.R_NO,  b.O_NUMBER, b.R_SCOPE, b.R_CONTENT, b.R_FILENAME, b.R_NEWFILENAME, b.R_LIKECOUNT, b.R_DEL, b.R_WDATE, 
+           c.P_NO, c.P_BRAND, c.P_NAME, c.P_TYPE1, c.P_NEWIMAGE1
+           FROM R_REPLY a, REVIEW b, PRODUCT c 
+		   WHERE a.R_NO(+) = b.R_NO
+		   AND b.P_NO = c.P_NO
+		   AND R_DEL=0)
+	WHERE RNUM BETWEEN 1 AND 3
+</select>
+
+</mapper>

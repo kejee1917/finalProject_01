@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Faq">
+
+<insert id="faqAdd" parameterType="verni.co.kr.faq.FaqDto" >
+	INSERT INTO FAQ(F_NO, F_CATEGORY, F_TITLE, F_CONTENT)
+	VALUES(NO_FAQ.NEXTVAL, #{f_category}, #{f_title}, #{f_content})
+</insert>
+
+<select id="getFaqList" parameterType="String" resultType="verni.co.kr.faq.FaqDto">
+	SELECT F_NO, F_CATEGORY, F_TITLE, F_CONTENT 
+	FROM FAQ
+	WHERE F_CATEGORY=#{f_category}
+</select>
+</mapper>

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Product">
+<insert id="addProduct" parameterType="verni.co.kr.product.ProductDto">
+	INSERT INTO PRODUCT(P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_TYPE2, P_SEASON, P_SIZE, P_COLOR, 
+						P_IMAGE1, P_NEWIMAGE1, P_IMAGE2, P_NEWIMAGE2, P_CONTENT, P_PRICE, P_DISCOUNT, P_GENDER, P_STATUS)
+	VALUES(NO_PRODUCT.NEXTVAL, #{p_name}, #{p_brand}, #{p_case}, #{p_type1}, #{p_type2}, #{p_season}, #{p_size}, 
+	       #{p_color}, #{p_image1}, #{p_newimage1}, #{p_image2}, #{p_newimage2},
+	       #{p_content}, #{p_price}, #{p_discount}, #{p_gender}, '대여가능')					
+</insert>
+
+
+
+<select id="allProductList" parameterType="verni.co.kr.product.ProductParam" resultType="verni.co.kr.product.ProductDto">
+	SELECT *
+	FROM (SELECT ROW_NUMBER()OVER(ORDER BY P_STATUS ASC) AS RNUM, P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_TYPE2, P_SEASON, P_SIZE, P_COLOR, P_GENDER, P_REGDATE,
+				 P_IMAGE1, P_NEWIMAGE1, P_IMAGE2, P_NEWIMAGE2, P_CONTENT, P_PRICE, P_DISCOUNT, P_STATUS, P_WISHCOUNT, P_DEL  
+		  FROM PRODUCT
+		  WHERE P_DEL=0
+		  AND 1=1
+		  <if test=" p_type1 != null and p_type1 !=''">
+       			AND P_TYPE1 in   
+        	<foreach item="item" index="index" collection="p_type1" open="(" separator="," close=")">
+           	 #{item}
+        	</foreach>
+	        	<if test=" p_type2 != null and p_type2 !=''">
+	       			AND P_TYPE2 in   
+		        	<foreach item="item" index="index" collection="p_type2" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+        		<if test=" p_brand != null and p_brand !=''">
+	       			AND P_BRAND in   
+		        	<foreach item="item" index="index" collection="p_brand" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	  	</if>
+	      	  	<if test=" p_case != null and p_case !=''">
+	       			AND P_CASE in   
+		        	<foreach item="item" index="index" collection="p_case" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_color != null and p_color !=''">
+	       			AND P_COLOR in   
+		        	<foreach item="item" index="index" collection="p_color" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_gender != null and p_gender !=''">
+	       			AND P_GENDER in   
+		        	<foreach item="item" index="index" collection="p_gender" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_size != null and p_size !=''">
+	       			AND P_SIZE in   
+		        	<foreach item="item" index="index" collection="p_size" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_status != null and p_status !=''">
+	       			AND P_STATUS in   
+		        	<foreach item="item" index="index" collection="p_status" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	  	<if test=" p_price != null and p_price !=''">
+	      	  		AND P_PRICE BETWEEN #{s_price} AND #{e_price}
+	      	  	</if>
+      	  </if>
+ 		ORDER BY
+         <choose>
+            <when test = "sorting=='wishcount'">
+            	P_STATUS ASC, P_WISHCOUNT DESC)
+            </when>
+            <when test = "sorting=='regdate'">
+            	P_STATUS ASC, P_REGDATE DESC)
+            </when>
+            <when test = "sorting=='pricedown'">
+            	P_STATUS ASC, P_PRICE ASC)
+            </when>
+            <when test = "sorting=='priceup'">
+             	P_STATUS ASC, P_PRICE DESC)
+            </when>
+            <otherwise>
+             	P_STATUS ASC,  P_NAME ASC)
+            </otherwise>
+         </choose>	
+    	WHERE RNUM BETWEEN ${start} AND ${end}
+</select> 
+ 
+<select id="getProductNum" parameterType="verni.co.kr.product.ProductParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) FROM PRODUCT
+	WHERE P_DEL=0
+	AND 1=1
+	  <if test=" p_type1 != null and p_type1 !=''">
+			AND P_TYPE1 in   
+	      	<foreach item="item" index="index" collection="p_type1" open="(" separator="," close=")">
+           	 #{item}
+        	</foreach>
+	        	<if test=" p_type2 != null and p_type2 !=''">
+	       			AND P_TYPE2 in   
+		        	<foreach item="item" index="index" collection="p_type2" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+        		<if test=" p_brand != null and p_brand !=''">
+	       			AND P_BRAND in   
+		        	<foreach item="item" index="index" collection="p_brand" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	  	</if>
+	      	  	<if test=" p_case != null and p_case !=''">
+	       			AND P_CASE in   
+		        	<foreach item="item" index="index" collection="p_case" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_color != null and p_color !=''">
+	       			AND P_COLOR in   
+		        	<foreach item="item" index="index" collection="p_color" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_gender != null and p_gender !=''">
+	       			AND P_GENDER in   
+		        	<foreach item="item" index="index" collection="p_gender" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_size != null and p_size !=''">
+	       			AND P_SIZE in   
+		        	<foreach item="item" index="index" collection="p_size" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	    <if test=" p_status != null and p_status !=''">
+	       			AND P_STATUS in   
+		        	<foreach item="item" index="index" collection="p_status" open="(" separator="," close=")">
+		           	 #{item}
+		        	</foreach>
+	      	    </if>
+	      	  	<if test=" p_price != null and p_price !=''">
+	      	  		AND P_PRICE BETWEEN #{s_price} AND #{e_price}
+	      	  	</if>
+      	  </if>
+</select> 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+<select id="getProduct" parameterType="_int" resultType="verni.co.kr.product.ProductDto">
+	SELECT *
+	FROM PRODUCT 
+    WHERE  P_NO=#{p_no}
+</select>
+
+<update id="addReadCount" parameterType="_int">
+	UPDATE PRODUCT SET P_READCOUNT=(P_READCOUNT+1) WHERE P_NO=#{p_no}
+</update>
+
+
+
+<!-- 메인 남자옷 신상품 -->
+<select id="getMainNewMan" resultType="verni.co.kr.product.ProductDto">
+	SELECT P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+	FROM(SELECT ROW_NUMBER()OVER(ORDER BY P_REGDATE DESC) AS RNUM, P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+    	 FROM PRODUCT WHERE P_GENDER='남성' AND P_TYPE1='의류')
+	WHERE P_DEL=0	 
+	AND RNUM BETWEEN 1 AND 4
+</select>
+
+<select id="getMainNewWoman" resultType="verni.co.kr.product.ProductDto">
+	SELECT P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+	FROM(SELECT ROW_NUMBER()OVER(ORDER BY P_REGDATE DESC) AS RNUM, P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+    	 FROM PRODUCT WHERE P_GENDER='여성' AND P_TYPE1='의류')
+	WHERE P_DEL=0	 
+	AND RNUM BETWEEN 1 AND 4
+</select>
+<select id="getMainWomanBag" resultType="verni.co.kr.product.ProductDto">
+	SELECT P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+	FROM(SELECT ROW_NUMBER()OVER(ORDER BY P_REGDATE DESC) AS RNUM, P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+    	 FROM PRODUCT WHERE P_GENDER='여성' AND P_TYPE1='가방')
+	WHERE P_DEL=0	 
+	AND RNUM BETWEEN 1 AND 4
+	ORDER BY P_REGDATE DESC
+</select>
+
+
+<select id="getHermesList" resultType="verni.co.kr.product.ProductDto">
+	SELECT * FROM PRODUCT
+	WHERE P_DEL=0	 
+	AND P_BRAND='HERMES'
+</select>
+
+<!-- 세일제품 -->
+<select id="getProductSaleList" resultType="verni.co.kr.product.ProductDto">
+	SELECT *
+	FROM PRODUCT 
+	WHERE P_DEL=0	 
+	AND P_DISCOUNT > 19
+	ORDER BY P_REGDATE DESC
+</select>
+
+<!-- 이 브랜드 다른 상품 --> 
+<select id="getBrandList" resultType="verni.co.kr.product.ProductDto" parameterType="verni.co.kr.product.ProductDto">
+SELECT P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+	FROM(SELECT ROW_NUMBER()OVER(ORDER BY P_REGDATE DESC) AS RNUM, P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+    	 FROM PRODUCT WHERE P_BRAND=#{p_brand})
+WHERE P_DEL=0	 
+AND P_NO != #{p_no}    	 
+AND RNUM BETWEEN 1 AND 3
+</select>   
+<!-- 비슷한 상품 -->
+<select id="getTypeList" resultType="verni.co.kr.product.ProductDto" parameterType="verni.co.kr.product.ProductDto">
+SELECT P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+	FROM(SELECT ROW_NUMBER()OVER(ORDER BY P_REGDATE DESC) AS RNUM, P_NO, P_NAME, P_BRAND, P_NEWIMAGE1, P_REGDATE, P_DEL
+    	 FROM PRODUCT WHERE P_TYPE1=#{p_type1} AND P_TYPE2=#{p_type2})
+WHERE P_DEL=0	 
+AND P_NO != #{p_no} 
+AND P_BRAND != #{p_brand}    	 
+AND RNUM BETWEEN 1 AND 3   
+</select>
+
+<!-- 쿠폰발행여부 -->
+<select id="getEventCouponNum" parameterType="String" resultType="Integer">
+ SELECT NVL(COUNT(*), 0)
+ FROM MEMBER_COUPON MC, COUPON C
+ WHERE MC.CP_NO = C.CP_NO
+ AND MC.M_ID=#{m_id}
+ AND C.CP_NO=13
+</select>
+<!-- 이벤트쿠폰 가져오기 -->
+<select id="getEventCoupon" resultType="verni.co.kr.benefit.CouponDto">
+SELECT *
+FROM COUPON
+WHERE CP_NO=13
+</select>
+<!-- 이벤트 쿠폰 넣기 -->
+<insert id="eventCouponAdd" parameterType="verni.co.kr.benefit.CouponDto">
+INSERT INTO MEMBER_COUPON(MC_NO, CP_NO, M_ID, MC_STARTDATE, MC_ENDDATE, MC_USE)
+VALUES(GET_SEQ('NO_MEMBER_COUPON'), #{cp_no} , #{m_id}, SYSDATE, SYSDATE+7, '사용가능')
+</insert>
+
+</mapper>  

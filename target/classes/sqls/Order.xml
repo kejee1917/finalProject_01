@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Orders">
+<update id="memberUpdate">
+UPDATE MEMBER
+SET M_POINT=#{m_point} , M_TOTAL=#{m_total}
+WHERE M_ID=#{m_id}
+</update>
+
+<update id="couponUpdate">
+UPDATE MEMBER_COUPON
+SET MC_USE='사용불가'
+WHERE M_ID=#{m_id}
+AND MC_NO=#{mc_no}
+</update>
+
+<select id="getPointList" resultType="verni.co.kr.benefit.PointDto">
+SELECT P_NO, P_POINT FROM POINT
+WHERE M_ID=#{m_id}
+AND P_POINT > 0
+AND TO_DATE(SYSDATE, 'YYYY/MM/DD') &lt;= TO_DATE(P_ENDDATE, 'YYYY/MM/DD')
+AND P_USE='사용가능'
+ORDER BY P_ENDDATE
+</select>
+
+<update id="pointUpdate">
+UPDATE POINT
+SET P_POINT=#{p_point}
+WHERE M_ID=#{m_id}
+AND P_NO=#{p_no}
+</update>
+
+<insert id="usePoint" parameterType="verni.co.kr.benefit.PointUseDto">
+INSERT INTO POINT_USE(PU_NO, P_NO, PU_CATEGORY, O_NUMBER, PU_AMOUNT,
+					PU_NAME, PU_USEDATE)
+VALUES(NO_POINT_USE.NEXTVAL, #{p_no}, '사용', #{o_number}, #{pu_amount},
+		'결제 사용', SYSDATE)					
+</insert>
+
+
+<insert id="ordered">
+INSERT INTO ORDERS(O_NO, O_NUMBER, M_ID, S_NAME, S_POST, S_ADDRESS, S_ADDRESS2, S_PHONE, S_REQUEST,
+				O_PAYMENT, MC_NO, O_POINT, O_TOTAL, O_TIME)
+VALUES(NO_ORDERS.NEXTVAL, #{o_number}, #{m_id}, #{s_name}, #{s_post}, #{s_address}, #{s_address2}, #{s_phone}, #{s_request},
+				#{o_payment}, #{mc_no}, #{o_point}, #{o_total}, SYSDATE)				
+</insert>
+
+<insert id="orderDetail">
+INSERT INTO ORDER_DETAIL(OD_NO, O_NUMBER, P_NO, OD_PERIOD, OD_AMOUNT, OD_AS,
+						 OD_POINT, OD_STATUS)
+VALUES(NO_ORDER_DETAIL.NEXTVAL, #{o_number}, #{p_no}, #{od_period}, #{od_amount}, #{od_as},
+						#{od_point}, #{od_status})			
+</insert>
+
+<delete id="cartDelete">
+DELETE CART
+WHERE C_NO=#{c_no}
+</delete>
+
+<update id="updateStatus">
+UPDATE PRODUCT SET
+P_STATUS='대여중'
+WHERE P_NO=#{p_no}
+</update>
+
+</mapper>

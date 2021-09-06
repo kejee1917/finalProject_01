@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Chat">
+<select id="getDataList" resultType="verni.co.kr.chat.BotDto">
+SELECT B_NO, B_CATEGORY, B_C_DEFAULT, B_QUESTION, B_ANSWER
+FROM BOTDATA
+ORDER BY B_NO
+</select>
+
+<select id="getQuestion" resultType="verni.co.kr.chat.BotDto">
+SELECT B_NO, B_CATEGORY, B_C_DEFAULT, B_QUESTION, B_ANSWER
+FROM BOTDATA
+WHERE B_CATEGORY=#{b_category}
+</select>
+
+
+
+<!-- 1:1채팅 -->
+<insert id="makeRoom">
+INSERT INTO CHATROOM(R_NO, R_UID, R_STATUS)
+VALUES(NO_CHATROOM.NEXTVAL, #{r_uid}, '상담중')
+</insert>
+
+<insert id="chatMessage" parameterType="verni.co.kr.chat.ChatDto">
+INSERT INTO CHAT(C_NO, R_NO, R_UID, C_MESSAGE, C_TIME, C_READ)
+VALUES(NO_CHAT.NEXTVAL, #{r_no}, #{r_uid}, #{c_message}, #{c_time}, #{c_read})
+</insert>
+
+<select id="getRoomInfo" resultType="Integer">
+<!-- SELECT R_NO FROM CHATROOM
+WHERE R_UID=#{r_uid} -->
+
+
+SELECT R_NO 
+FROM (SELECT R_NO, R_UID FROM CHATROOM
+	  ORDER BY R_NO DESC)
+WHERE R_UID=#{r_uid}
+AND ROWNUM = 1
+</select>
+
+<select id="getRoomNum" resultType="Integer">
+SELECT NVL(R_NO, 1) as R_NO
+FROM (SELECT R_NO FROM CHATROOM
+	ORDER BY R_NO DESC) RIGHT OUTER JOIN DUAL ON 1=1
+WHERE ROWNUM = 1
+</select>
+
+<select id="getChatData" resultType="verni.co.kr.chat.ChatDto">
+SELECT C.C_NO, C.R_NO, C.R_UID, CR.R_STATUS, C.C_MESSAGE, C.C_TIME, C.C_READ
+FROM CHAT C, CHATROOM CR
+WHERE C.R_NO=#{r_no} AND CR.R_NO=#{r_no}
+</select>
+
+<select id="getChatRoomList" resultType="verni.co.kr.chat.ChatRoomDto">
+
+SELECT CR.R_NO
+FROM CHATROOM CR, (SELECT *
+FROM(SELECT ROW_NUMBER() OVER(PARTITION BY C.R_NO ORDER BY C.C_NO DESC)
+row_num, C.*
+FROM CHAT C
+WHERE C.R_UID !='관리자'
+ORDER BY C.C_NO DESC)
+WHERE ROW_NUM=1) C
+WHERE CR.R_NO = C.R_NO
+ORDER BY CR.R_STATUS DESC, C.C_NO DESC
+</select>
+
+<select id="getChatList" resultType="verni.co.kr.chat.ChatDto">
+SELECT CR.R_NO, CR.R_UID, CR.R_STATUS, C.C_MESSAGE, C.C_TIME, C.C_NO as C_NO,
+(SELECT COUNT(C_READ) FROM CHAT WHERE R_NO=#{r_no} AND C_READ='안읽음' AND R_UID!='관리자') READCOUNT
+FROM CHATROOM CR, CHAT C 
+WHERE CR.R_NO=#{r_no} AND C.R_NO=#{r_no} 
+AND C.R_UID!='관리자' AND ROWNUM = 1
+ORDER BY C.C_NO DESC
+</select>
+
+<update id="readUpdate">
+UPDATE CHAT
+SET C_READ='읽음'
+WHERE C_READ='안읽음'
+AND R_NO=#{r_no}
+</update>
+
+<update id="statusUpdate">
+UPDATE CHATROOM
+SET R_STATUS='상담종료'
+WHERE R_NO=#{r_no}
+</update>
+
+<select id="getGenderRat" resultType="verni.co.kr.admin.ChartDto">
+SELECT M_GENDER, COUNT(*) as GCOUNT
+FROM MEMBER
+GROUP BY M_GENDER
+</select>
+
+<select id="getMonthTotal" resultType="verni.co.kr.admin.ChartDto">
+  
+SELECT TO_CHAR(b.dt, 'YY-MM') AS o_time
+     , NVL(SUM(a.cnt), 0) cnt, NVL(SUM(a.amount),0) amount
+  FROM ( SELECT TO_DATE(O_TIME, 'YY/MM/DD') AS o_time
+              , COUNT(*) cnt, SUM(O_TOTAL) amount
+           FROM ORDERS
+         WHERE TO_DATE(O_TIME, 'YY/MM/DD') >= '2021/01/01' AND TO_DATE(O_TIME, 'YY/MM/DD') &lt;= TO_DATE(SYSDATE, 'YY/MM/DD')
+         GROUP BY O_TIME
+        ) a
+      , ( SELECT TO_DATE('2021-01-01','YY-MM-DD') + LEVEL - 1 AS dt
+            FROM dual 
+         CONNECT BY LEVEL &lt;= (TO_DATE(SYSDATE, 'YY/MM/DD')
+                            - TO_DATE('2021-01-01','YY-MM-DD') + 1)
+        ) b
+  WHERE b.dt = a.o_time(+)
+  GROUP BY TO_CHAR(b.dt, 'YY-MM')
+  ORDER BY TO_CHAR(b.dt, 'YY-MM')
+</select>
+
+<select id="getTopProduct" resultType="verni.co.kr.admin.ChartDto">
+  
+SELECT P.P_NAME, A.NUM
+FROM (SELECT P_NO, COUNT(P_NO) NUM FROM ORDERS O, ORDER_DETAIL OD
+WHERE O.O_NUMBER = OD.O_NUMBER
+  	AND SUBSTR(O.O_TIME, 1, 5) = SUBSTR(SYSDATE, 1, 5)
+  	GROUP BY P_NO
+  	ORDER BY NUM DESC
+) A, PRODUCT P
+WHERE A.P_NO = P.P_NO
+AND ROWNUM &lt;= 5
+ORDER BY NUM DESC
+</select>
+
+</mapper>  

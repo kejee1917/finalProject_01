@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="Review">
+<select id="reviewList" parameterType="Integer" resultType="verni.co.kr.review.ReviewDto">
+	SELECT A.RP_NO, B.R_NO, A.RP_WDATE, A.RP_CONTENT, M_ID, P_NO, O_NUMBER, R_SCOPE, R_CONTENT, R_FILENAME, R_NEWFILENAME, 
+			R_LIKECOUNT, R_DEL, R_WDATE, R_STATUS
+	FROM R_REPLY A, REVIEW B 
+	WHERE A.R_NO(+) = B.R_NO
+	AND P_NO=#{p_no}
+	AND R_DEL=0
+	ORDER BY R_WDATE DESC
+</select>
+
+<select id="getLikeCount" parameterType="Integer" resultType="Integer" >
+	SELECT R_LIKECOUNT
+	FROM REVIEW
+	WHERE R_NO=#{r_no}
+	AND R_DEL=0
+</select>
+
+
+
+<insert id="revWrite" parameterType="verni.co.kr.review.ReviewDto">
+	INSERT INTO REVIEW(R_NO, M_ID, P_NO, O_NUMBER, R_SCOPE, R_CONTENT, R_FILENAME, R_NEWFILENAME, R_STATUS)
+	VALUES(NO_REVIEW.NEXTVAL, #{m_id}, #{p_no}, #{o_number}, #{r_scope}, #{r_content}, 
+						#{r_filename}, #{r_newfilename}, '답변대기')
+</insert>
+
+
+<!-- 0826은지 수정 -->
+<update id="od_reviewUpdate" parameterType="Integer">
+	UPDATE ORDER_DETAIL
+	SET OD_REVIEW=1
+	WHERE OD_NO=#{od_no}
+</update>
+
+<!-- 리뷰 뿌리기용 -->
+<select id="getProduct" parameterType="_int" resultType="verni.co.kr.product.ProductDto">
+	SELECT c.P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_TYPE2, P_SEASON, P_SIZE, P_COLOR, 
+			P_IMAGE1, P_NEWIMAGE1, P_IMAGE2, P_NEWIMAGE2, P_CONTENT, P_PRICE, P_DISCOUNT, P_GENDER, P_STATUS, o.OD_POINT, o.O_NUMBER
+	FROM PRODUCT c, ORDER_DETAIL o
+    WHERE  c.P_NO = o.P_NO
+    AND o.OD_NO=#{od_no}
+    AND P_DEL=0
+</select>
+
+
+
+<delete id="reviewDel" parameterType="java.lang.Integer">
+	DELETE REVIEW
+	WHERE R_NO=#{r_no}
+</delete>
+<!-- 0806 엄지 추가 -->
+<select id="reviewTop" parameterType="verni.co.kr.review.ReviewDto" resultType="verni.co.kr.review.ReviewDto">
+	SELECT *
+	FROM REVIEW
+	WHERE P_NO=#{p_no}
+	AND R_DEL=0
+	ORDER BY R_SCOPE DESC
+</select>
+
+<select id="reviewLow" parameterType="verni.co.kr.review.ReviewDto"  resultType="verni.co.kr.review.ReviewDto">
+	SELECT *
+	FROM REVIEW
+	WHERE P_NO=#{p_no}
+	AND R_DEL=0
+	ORDER BY R_SCOPE ASC
+</select>
+
+
+<!-- 별점 평균 -->
+<select id="reviewAvg" parameterType="Integer"  resultType="_double">
+   SELECT ROUND(AVG(R_SCOPE),1) AS RAVG
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   GROUP BY P_NO
+</select>
+<!-- 리뷰 갯수 -->
+<select id="reviewCount" parameterType="Integer"  resultType="Integer">
+   SELECT  count(*) AS count
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   AND R_DEL=0
+   GROUP BY P_NO
+</select>
+<!-- 다섯개 -->
+<select id="scopeFive" parameterType="Integer"  resultType="Integer">
+   SELECT count(*) as scopeCount
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   and r_scope = 5
+   AND R_DEL=0
+</select>
+<!-- 넷 -->
+<select id="scopeFour" parameterType="Integer"  resultType="Integer">
+   SELECT count(*) as scopeCount
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   and r_scope = 4
+   AND R_DEL=0
+</select>
+<!-- 셋 -->
+<select id="scopeThree" parameterType="Integer"  resultType="Integer">
+   SELECT count(*) as scopeCount
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   and r_scope = 3
+   AND R_DEL=0
+</select>
+<!-- 둘 -->
+<select id="scopeTwo" parameterType="Integer"  resultType="Integer">
+   SELECT count(*) as scopeCount
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   and r_scope = 2
+   AND R_DEL=0
+</select>
+<!-- 일 -->
+<select id="scopeOne" parameterType="Integer"  resultType="Integer">
+   SELECT count(*) as scopeCount
+   FROM REVIEW
+   WHERE P_NO=#{p_no}
+   and r_scope = 1
+   AND R_DEL=0
+</select>
+
+<!-- 여기까지 -->
+
+
+
+
+
+
+
+
+
+
+<!-- 리플 추가 -->
+<insert id="rReplyWrite" parameterType="verni.co.kr.review.R_ReplyDto">
+	INSERT INTO R_REPLY(RP_NO, R_NO, RP_CONTENT)
+	VALUES(NO_R_REPLY.NEXTVAL, #{r_no}, #{rp_content})
+</insert>
+
+
+<!-- 제품 디테일에 뿌리기 용 -->
+<select id="getReplyList" parameterType="_int" resultType="verni.co.kr.review.R_ReplyDto">
+SELECT A.RP_NO, A.R_NO, A.RP_WDATE, A.RP_CONTENT, P_NO, R_SATATUS
+FROM R_REPLY A, REVIEW B 
+WHERE A.R_NO=B.R_NO
+AND p_no=#{p_no}
+AND R_DEL=0
+</select>
+
+
+<!-- 아직 필요없음... -->
+<select id="getReply" parameterType="_int" resultType="verni.co.kr.review.R_ReplyDto">
+	SELECT RP_NO, R_NO, RP_WDATE, RP_CONTENT 
+	FROM R_REPLY
+	WHERE R_NO=#{r_no}
+</select>
+<!-- 리뷰 댓글쓰기에 뿌려주기 용 -->
+<select id="getReview" parameterType="verni.co.kr.review.ReviewDto" resultType="verni.co.kr.review.ReviewDto">
+	SELECT b.M_ID, b.R_NO,  b.O_NUMBER, b.R_SCOPE, b.R_CONTENT, b.R_NEWFILENAME, b.R_LIKECOUNT, b.R_WDATE, b.R_FILENAME, R_STATUS
+       b.P_NO, c.P_BRAND, c.P_NAME, c.P_TYPE1, c.P_NEWIMAGE1
+	FROM   REVIEW b, PRODUCT c 
+	WHERE  b.P_NO = c.P_NO
+	AND    b.R_NO = #{r_no}
+	AND R_DEL=0
+</select>
+
+
+<!--  리뷰페이지 -->
+<select id="getReviewList" parameterType="verni.co.kr.review.ReviewParam" resultType="verni.co.kr.review.ReviewDto">
+	SELECT RP_NO, RP_WDATE, RP_CONTENT, 
+       	   M_ID, R_NO,  O_NUMBER, R_SCOPE, R_CONTENT, R_FILENAME, R_NEWFILENAME, R_LIKECOUNT, R_DEL, R_WDATE, 
+           P_NO, P_BRAND, P_NAME, P_TYPE1, P_NEWIMAGE1
+	FROM (SELECT ROW_NUMBER()OVER(ORDER BY R_WDATE DESC) AS RNUM, a.RP_NO, a.RP_WDATE, a.RP_CONTENT, 
+       	   b.M_ID, b.R_NO,  b.O_NUMBER, b.R_SCOPE, b.R_CONTENT, b.R_FILENAME, b.R_NEWFILENAME, b.R_LIKECOUNT, b.R_DEL, b.R_WDATE, 
+           c.P_NO, c.P_BRAND, c.P_NAME, c.P_TYPE1, c.P_NEWIMAGE1  
+           FROM R_REPLY a, REVIEW b, PRODUCT c 
+		   WHERE a.R_NO(+) = b.R_NO
+	       AND b.P_NO = c.P_NO
+	       AND R_DEL=0
+	       AND 1=1
+			<if test="search != null and search != ''">
+            	<if test="search == 'all'">
+            	</if>
+            	<if test="search != 'all'">
+             		AND P_TYPE1=#{search}
+            	</if>
+         	</if>
+		   ORDER BY R_WDATE DESC)
+		WHERE RNUM BETWEEN ${start} AND ${end}	   
+</select>
+
+
+<select id="getReviewNum" parameterType="verni.co.kr.review.ReviewParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) 
+	FROM REVIEW b, PRODUCT c 
+	WHERE b.P_NO = c.P_NO
+	AND R_DEL=0
+	AND 1=1
+	<if test="search != null and search != ''">
+       	<if test="search == 'all'">
+       	</if>
+       	<if test="search != 'all'">
+       		AND P_TYPE1=#{search}
+       	</if>
+     </if>
+</select>	
+
+
+
+<select id="getBestReview" resultType="verni.co.kr.review.ReviewDto">
+	SELECT RP_NO, RP_WDATE, RP_CONTENT, 
+       	   M_ID, R_NO,  O_NUMBER, R_SCOPE, R_CONTENT, R_FILENAME, R_NEWFILENAME, R_LIKECOUNT, R_DEL,R_WDATE, 
+           P_NO, P_BRAND, P_NAME, P_TYPE1, P_NEWIMAGE1
+	FROM (SELECT ROW_NUMBER()OVER(ORDER BY b.R_LIKECOUNT DESC) AS RNUM, a.RP_NO, a.RP_WDATE, a.RP_CONTENT, 
+       	   b.M_ID, b.R_NO,  b.O_NUMBER, b.R_SCOPE, b.R_CONTENT, b.R_FILENAME, b.R_NEWFILENAME, b.R_LIKECOUNT, b.R_DEL, b.R_WDATE, 
+           c.P_NO, c.P_BRAND, c.P_NAME, c.P_TYPE1, c.P_NEWIMAGE1
+           FROM R_REPLY a, REVIEW b, PRODUCT c 
+		   WHERE a.R_NO(+) = b.R_NO
+		   AND b.P_NO = c.P_NO
+		   AND R_DEL=0)
+	WHERE RNUM BETWEEN 1 AND 4
+</select>
+
+<!-- 리뷰 시퀀스 맥스값 구하기 -->
+<select id="getReviewMaxNo" resultType="_int">
+	SELECT NVL(MAX(R_NO),1) FROM REVIEW
+</select>
+
+
+<!-- 리뷰작성시 포인트 주기 -->
+<update id="pointUpdate" parameterType="verni.co.kr.benefit.PointDto">
+	UPDATE MEMBER SET M_POINT=M_POINT+#{puls_point} WHERE M_ID=#{m_id}
+</update>
+
+<insert id="setPoint" parameterType="verni.co.kr.benefit.PointDto">
+	INSERT INTO POINT(P_NO, M_ID, P_STARTDATE, P_ENDDATE, P_POINT, P_NAME, P_USE)
+	VALUES(NO_POINT.NEXTVAL, #{m_id}, SYSDATE, SYSDATE+1825, #{puls_point}, '리뷰포인트적립', '사용가능')
+</insert>
+
+<insert id="setPointUse" parameterType="verni.co.kr.benefit.PointDto">
+	INSERT INTO POINT_USE(PU_NO, P_NO, PU_CATEGORY, O_NUMBER, PU_AMOUNT, PU_NAME, PU_USEDATE)
+	VALUES(GET_SEQ('NO_POINT_USE'), #{p_no}, '적립', 0, #{puls_point}, '리뷰포인트적립', SYSDATE)
+</insert>
+<!-- 리뷰 시퀀스 맥스값 구하기 -->
+<select id="getPointMaxNo" resultType="_int">
+	SELECT NVL(MAX(P_NO),1) FROM POINT
+</select>
+</mapper>
+

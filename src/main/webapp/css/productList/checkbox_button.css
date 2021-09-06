@@ -1,0 +1,221 @@
+@charset "UTF-8";
+
+.sorting-radio-input input[type="radio"]{
+  display:none;
+}
+
+.sorting-radio-input input[type="radio"] + span{
+  display:inline-block;
+  background:none;
+  text-align:right;
+  line-height:25px;
+  font-weight:500;
+  cursor:pointer;
+}
+
+.sorting-radio-input input[type="radio"]:checked + span{
+  color:#048ABF;
+}
+
+
+
+
+
+
+
+
+
+
+/*검색버튼*/
+.box-radio-input input[type="radio"]{
+  display:none;
+}
+
+.box-radio-input input[type="radio"] + span{
+  display:inline-block;
+  background:none;
+  text-align:left;
+  height:25px;
+  line-height:25px;
+  font-weight:500;
+  cursor:pointer;
+  margin-top: 5px;
+  padding-bottom: 5px;
+}
+
+.box-radio-input input[type="radio"]:checked + span{
+  color:#048ABF;
+}
+
+
+
+
+
+/* type2 */
+.box-checkbox-input input[type="checkbox"]{
+  display:none;
+}
+
+.box-checkbox-input input[type="checkbox"] + span{
+  display:inline-block;
+  background:none;
+  border:1px solid #dfdfdf;  
+  text-align:center;
+  height:40px;
+  width: 110px;
+  line-height:25px;
+  font-weight:500;
+  cursor:pointer;
+  padding-top: 10px;
+}
+
+.box-checkbox-input input[type="checkbox"]:checked + span{
+  border:1px solid #dfdfdf;
+  background:#8A989A;
+  color:#fff;
+}
+
+/* 카테고리 박스*/
+.cate-base-box {
+	padding: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	border: 5px solid #e8e8e8;
+	color: #404040;
+}
+
+.cate-base-box.typeThin {
+	border-width: 1px;
+	border-color: #d7d5d5;
+	float: left;
+	width: 9%;
+	background: #8A989A;
+	color: white;
+}
+
+/*테이블 한줄짜리 카테고리 div*/
+.cate1-base-box {
+	padding: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	border: 5px solid #e8e8e8;
+	color: #404040;
+	height: 37px;
+}
+
+.cate1-base-box.typeThin {
+	border-width: 1px;
+	border-color: #d7d5d5;
+	float: left;
+	width: 9%;
+	background: #8A989A;
+	color: white;
+}
+
+
+/*카테고리 brand 테이블 div*/
+.table-div {
+	float: left;
+	width: 91%;
+	height: auto;
+	padding-left: 3%;
+	border: 1px solid;
+	border-width: 1px;
+	border-color: #d7d5d5;
+}
+
+
+
+
+
+
+/* brand 시계 첫번째줄*/
+.brand-checkbox-input input[type="checkbox"]{
+  display:none;
+}
+
+.brand-checkbox-input input[type="checkbox"] + span{
+  display:inline-block;
+  background:none;
+/*   border:1px solid #dfdfdf;  */ 
+  text-align:left;
+  height:25px;
+  width: 140px;
+  line-height:25px;
+  font-weight:500;
+  cursor:pointer;
+  margin-top: 5px;
+  padding-bottom: 5px;
+
+}
+
+.brand-checkbox-input input[type="checkbox"]:checked + span{
+  color:#048ABF;
+}
+
+/* brand 시계 두번째줄*/
+.brand2-checkbox-input input[type="checkbox"]{
+  display:none;
+}
+
+.brand2-checkbox-input input[type="checkbox"] + span{
+  display:inline-block;
+  background:none;
+/*   border:1px solid #dfdfdf;  */ 
+  text-align:left;
+  height:25px;
+  width: 140px;
+  line-height:25px;
+  font-weight:500;
+  cursor:pointer;
+
+
+}
+
+.brand2-checkbox-input input[type="checkbox"]:checked + span{
+	border: 1px;
+	border-color:red;	
+  color: #048ABF;
+}
+
+
+
+/* 컬러 체크박스 */
+/* brand 시계 첫번째줄*/
+.color-checkbox-input input[type="checkbox"]{
+  display:none;
+}
+
+.color-checkbox-input input[type="checkbox"] + span{
+  display:inline-block;
+  background:none;
+/*   border:1px solid #dfdfdf;  */ 
+  text-align:left;
+  height:25px;
+  width: 20px;
+  line-height:25px;
+  cursor:pointer;
+  margin-top: 5px;
+  padding-bottom: 5px;
+
+}
+
+.color-checkbox-input input[type="checkbox"]:checked + span{
+  font-size: 15px;
+  color:#8A989A;
+}
+
+
+/*검색 박스*/
+.sm-base-box {
+	padding: 20px;
+
+	border: 5px solid #e8e8e8;
+	color: #404040;
+	width: 100%;
+}
+
+.sm-base-box.typeThin {
+	border-width: 1px;
+	border-color: #d7d5d5;
+}

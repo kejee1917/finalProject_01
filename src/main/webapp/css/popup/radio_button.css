@@ -1,0 +1,59 @@
+/* 장바구니,대여하기 */
+/* button       btnSubmit sizeL*/
+
+[class^='btnSubmit'], a[class^='btnSubmit'] {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 10px 16px;
+	border: 1px solid transparent;
+	font-size: 12px;
+	line-height: 18px;
+	font-weight: normal;
+	text-decoration: none;
+	vertical-align: middle;
+	word-spacing: -0.5px;
+	letter-spacing: 0;
+	text-align: center;
+	color: #fff;
+	background-color: #224037;
+	width: 150px;
+}
+
+[class^='btnEm'], a[class^='btnEm'] {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 10px 16px;
+	border: 1px solid black;
+	font-size: 12px;
+	line-height: 18px;
+	font-weight: normal;
+	text-decoration: none;
+	vertical-align: middle;
+	word-spacing: -0.5px;
+	letter-spacing: 0;
+	text-align: center;
+	color: black;
+	background-color: #fff;
+	width: 150px;
+}
+
+
+
+[class^='btnSubmit']:not(.disabled):hover {
+	background-color: #222831;
+}
+
+
+
+[class^='btnSubmit'].disabled {
+	background-color: #8C4303;
+	color: #f0f0f0;
+}
+
+[class^='btnEm'].disabled {
+	background-color: #b5b6b9;
+	color: #f0f0f0;
+}
+
+
+

@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Admin">
+
+<!-- 관리자계정관리 -->
+
+<update id="pwdUpdate" parameterType="verni.co.kr.member.MemberDto">
+	UPDATE MEMBER
+	SET M_PASSWORD=#{m_password}
+	WHERE M_ID=#{m_id}
+</update>
+
+<update id="inforUpdate" parameterType="verni.co.kr.member.MemberDto">
+	UPDATE MEMBER
+	SET M_NAME=#{m_name}, M_EMAIL=#{m_email}
+	WHERE M_ID=#{m_id}
+</update>
+
+<!-- 회원관리 -->
+
+<select id="memList" parameterType="verni.co.kr.admin.AdminParam" resultType="verni.co.kr.member.MemberDto">
+	SELECT M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, NVL(M_ADDRESS_DETAIL, ' ') AS M_ADDRESS_DETAIL,
+			M_EMAIL, M_PHONENUM, M_JOINDATE, M_LEVEL, M_POINT, M_TOTAL, NVL(M_BIRTH, '입력안함') AS M_BIRTH, M_GENDER, M_REASON
+	FROM
+		(SELECT ROW_NUMBER()OVER(ORDER BY M_LEVEL ASC, M_NO DESC)AS RNUM,
+				M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, M_ADDRESS_DETAIL,
+				M_EMAIL, M_PHONENUM, M_JOINDATE, M_LEVEL, M_POINT, M_TOTAL, M_BIRTH, M_GENDER, M_REASON
+		FROM MEMBER
+		WHERE 1=1 AND M_LEVEL != 1
+			<if test="choice != null and choice != '' 
+				and search != null and search != ''">
+				<!-- <if test="choice == '회원번호'">
+					AND M_NO=#{search}
+				</if> -->
+				<if test="choice == '이름'">
+		      		AND M_NAME LIKE '%'||#{search}||'%'
+		      	</if>
+		      	<if test="choice == '아이디'">
+		      		AND M_ID LIKE '%'||#{search}||'%'
+		      	</if>
+		      	<if test="choice == '등급'">
+		      		AND M_LEVEL LIKE '%'||#{search}||'%'
+		      	</if>
+    		</if>
+			ORDER BY M_LEVEL ASC, M_NO DESC)
+	WHERE M_LEVEL != 1 
+	AND RNUM BETWEEN #{start} AND #{end} 
+</select>
+
+<!-- 회원 총 수 -->
+<select id="getMemberCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM MEMBER
+	WHERE 1=1 AND M_LEVEL != 1
+		<if test="choice != null and choice != '' 
+			and search != null and search != ''">
+			<!-- <if test="choice == '회원번호'">
+				AND M_NO=#{search}
+			</if> -->
+			<if test="choice == '이름'">
+	      		AND M_NAME LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '아이디'">
+	      		AND M_ID LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '등급'">
+	      		AND M_LEVEL LIKE '%'||#{search}||'%'
+	      	</if>
+   		</if>
+</select>
+
+<select id="getMember" parameterType="Integer" resultType="verni.co.kr.member.MemberDto">
+	SELECT M_NO, M_NAME, M_ID, M_PASSWORD, M_ADDRESS_POSTCODE, M_ADDRESS_PRIMARY, NVL(M_ADDRESS_DETAIL, ' ') AS M_ADDRESS_DETAIL,
+			M_EMAIL, M_PHONENUM, M_JOINDATE, M_LEVEL, M_POINT, M_TOTAL, NVL(M_BIRTH, '입력안함') AS M_BIRTH, M_GENDER, M_REASON
+	FROM MEMBER
+	WHERE M_NO=#{m_no}
+</select>
+
+<update id="memDelete" parameterType="Integer">
+	UPDATE MEMBER
+	SET M_LEVEL = 9, M_REASON = 'admin'
+	WHERE M_NO=#{m_no}
+</update>
+
+<update id="memUpdate" parameterType="verni.co.kr.member.MemberDto">
+	UPDATE MEMBER
+	SET M_NAME=#{m_name}, M_PASSWORD=#{m_password}, M_GENDER=#{m_gender}, 
+		M_ADDRESS_POSTCODE=#{m_address_postcode}, M_ADDRESS_PRIMARY=#{m_address_primary}, M_ADDRESS_DETAIL=#{m_address_detail},
+		M_PHONENUM=#{m_phoneNum}, M_LEVEL=#{m_level}, M_POINT=#{m_point}, M_TOTAL=#{m_total}
+	WHERE M_NO=#{m_no}
+</update>
+
+<!-- 상품관리 -->
+
+<select id="pdList" parameterType="verni.co.kr.admin.AdminParam" resultType="verni.co.kr.product.ProductDto">
+	SELECT P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_SIZE, P_PRICE, P_STATUS, P_GENDER, P_NEWIMAGE1, P_DEL
+	FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY P_DEL ASC, P_STATUS DESC, P_NO DESC) AS RNUM,
+					P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_SIZE, P_PRICE, P_STATUS, P_GENDER, P_NEWIMAGE1, P_DEL
+			FROM PRODUCT
+			WHERE 1=1
+			<if test="choice == '성별'">
+	      		AND P_GENDER LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '상품명'">
+	      		AND P_NAME LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '브랜드'">
+	      		AND P_BRAND LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '상황'">
+	      		AND P_CASE LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '종류'">
+	      		AND P_TYPE1 LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '대여현황'">
+	      		AND P_STATUS LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="p_status == '대여중'">
+				AND P_STATUS='대여중'
+		   	</if>
+		   	<if test="p_status == '대여가능'">
+				AND P_STATUS='대여가능'
+		   	</if>
+		   	<if test="p_status == '삭제'">
+				AND P_DEL = 1
+		   	</if>
+			ORDER BY P_DEL ASC, P_STATUS DESC, P_NO DESC)
+	WHERE RNUM BETWEEN #{start} AND #{end}
+</select>
+
+<!-- 상품 총 갯수 -->
+<select id="getProductCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM PRODUCT
+	WHERE 1=1
+	<if test="choice == '성별'">
+    	AND P_GENDER LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '상품명'">
+     	AND P_NAME LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '브랜드'">
+     	AND P_BRAND LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '상황'">
+     	AND P_CASE LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '종류'">
+    	AND P_TYPE1 LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '대여현황'">
+     	AND P_STATUS LIKE '%'||#{search}||'%'
+   	</if>
+	<if test="p_status == '대여중'">
+		AND P_STATUS='대여중'
+   	</if>
+   	<if test="p_status == '대여가능'">
+		AND P_STATUS='대여가능'
+   	</if>
+  		<if test="p_status == '삭제'">
+		AND P_DEL = 1
+   	</if>
+</select>
+
+<select id="getProduct" parameterType="Integer" resultType="verni.co.kr.product.ProductDto">
+	SELECT P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_TYPE2, P_SEASON, P_SIZE, P_COLOR, 
+			P_IMAGE1, P_NEWIMAGE1, P_IMAGE2, P_NEWIMAGE2, P_CONTENT, P_PRICE, P_DISCOUNT, P_GENDER, P_STATUS, P_DEL
+	FROM PRODUCT
+	WHERE P_NO=#{p_no}
+</select>
+
+<update id="pdDelete" parameterType="verni.co.kr.product.ProductDto">
+	UPDATE PRODUCT
+	SET P_DEL=1
+	WHERE P_NO=#{p_no}
+</update>
+
+<insert id="addProduct" parameterType="verni.co.kr.product.ProductDto">
+	INSERT INTO PRODUCT(P_NO, P_NAME, P_BRAND, P_CASE, P_TYPE1, P_TYPE2, P_SEASON, P_SIZE, P_COLOR, 
+						P_IMAGE1, P_NEWIMAGE1, P_IMAGE2, P_NEWIMAGE2, P_CONTENT, P_PRICE, P_DISCOUNT, P_GENDER, P_STATUS)
+	VALUES(NO_PRODUCT.NEXTVAL, #{p_name}, #{p_brand}, #{p_case}, #{p_type1}, #{p_type2}, #{p_season}, #{p_size}, 
+	       #{p_color}, #{p_image1}, #{p_newimage1}, #{p_image2}, #{p_newimage2},
+	       #{p_content}, #{p_price}, #{p_discount}, #{p_gender}, '대여가능')					
+</insert>
+
+<update id="pdUpdate" parameterType="verni.co.kr.product.ProductDto">
+	UPDATE PRODUCT
+	SET P_NAME=#{p_name}, P_BRAND=#{p_brand}, P_CASE=#{p_case}, P_TYPE1=#{p_type1}, P_TYPE2=#{p_type2}, 
+		P_SEASON=#{p_season}, P_SIZE=#{p_size}, P_COLOR=#{p_color}, 
+		P_IMAGE1=#{p_image1}, P_NEWIMAGE1=#{p_newimage1}, P_IMAGE2=#{p_image2}, P_NEWIMAGE2=#{p_newimage2}, 
+		P_CONTENT=#{p_content}, P_PRICE=#{p_price}, P_DISCOUNT=#{p_discount}, P_GENDER=#{p_gender}
+	WHERE P_NO=#{p_no}
+</update>
+
+
+<!-- 상품문의관리 -->
+<!-- column : DB컬럼명, property : key 값 -->
+<resultMap type="HashMap" id="_pdQna">
+	<id column="q.Q_NO" property="q.Q_NO" />
+	<id column="q.M_ID" property="q.M_ID" />
+	<id column="q.P_NO" property="q.P_NO" />
+	<id column="p.P_NAME" property="p.P_NAME" />
+	<id column="q.Q_TITLE" property="q.Q_TITLE" />
+	<id column="q.Q_CATE" property="q.Q_CATE" />
+	<id column="q.Q_CONTENT" property="q.Q_CONTENT" />
+	<id column="q.Q_SECRIT" property="q.Q_SECRIT" />
+	<id column="q.Q_DEL" property="q.Q_DEL" />
+	<id column="q.Q_WDATE" property="q.Q_WDATE" />
+	<id column="q.Q_STATUS" property="q.Q_STATUS" />
+</resultMap>
+
+<select id="pdQnaList" parameterType="verni.co.kr.admin.AdminParam" resultMap="_pdQna">
+	SELECT Q_NO, M_ID, P_NO, P_NAME, Q_TITLE, Q_CATE, Q_CONTENT, Q_SECRIT, Q_DEL, 
+			Q_WDATE, Q_STATUS, MS_NO, MS_CATEGORY
+	FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY Q_DEL ASC, Q_STATUS ASC, Q_NO DESC)AS RNUM,
+					q.Q_NO, q.M_ID, q.P_NO, p.P_NAME, q.Q_TITLE, q.Q_CATE, q.Q_CONTENT, q.Q_SECRIT, q.Q_DEL, 
+					TO_CHAR(q.Q_WDATE, 'YYYY-MM-DD') Q_WDATE, q.Q_STATUS, m.MS_NO, m.MS_CATEGORY
+			FROM QNA q, PRODUCT p, MESSAGE m
+			WHERE q.P_NO = p.P_NO AND  q.Q_NO = m.MS_NOS AND m.MS_CATEGORY = '상품문의'
+		    <if test="choice == '문의유형'">
+	      		AND q.Q_CATE LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '상품명'">
+	      		AND p.P_NAME LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '제목'">
+	      		AND q.Q_TITLE LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '내용'">
+	      		AND q.Q_CONTENT LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '작성자'">
+	      		AND q.M_ID LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '답변여부'">
+	      		AND q.Q_STATUS LIKE '%'||#{search}||'%'
+	      	</if>
+			<if test="q_status == '답변대기'">
+				AND q.Q_STATUS='답변대기'
+	      	</if>
+	      	<if test="q_status == '답변완료'">
+				AND q.Q_STATUS='답변완료'
+	      	</if>
+	      	<if test="q_status == '삭제글'">
+				AND q.Q_DEL = 1
+	      	</if>
+			ORDER BY Q_DEL ASC, Q_STATUS ASC, Q_NO DESC)
+	WHERE RNUM BETWEEN #{start} AND #{end} 
+</select>
+
+<!-- 문의글 총 수 -->
+<select id="getProductQnaCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM QNA q, PRODUCT p, MESSAGE m
+	WHERE q.P_NO = p.P_NO AND  q.Q_NO = m.MS_NOS AND m.MS_CATEGORY = '상품문의'
+  	<if test="choice == '문의유형'">
+     	AND q.Q_CATE LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '상품명'">
+     	AND p.P_NAME LIKE '%'||#{search}||'%'
+    </if>
+   	<if test="choice == '제목'">
+     	AND q.Q_TITLE LIKE '%'||#{search}||'%'
+   	</if>
+   	<if test="choice == '내용'">
+    	AND q.Q_CONTENT LIKE '%'||#{search}||'%'
+   	</if>
+   	<if test="choice == '작성자'">
+   		AND q.M_ID LIKE '%'||#{search}||'%'
+   	</if>
+   	<if test="choice == '답변여부'">
+   		AND q.Q_STATUS LIKE '%'||#{search}||'%'
+   	</if>
+	<if test="q_status == '답변대기'">
+		AND q.Q_STATUS='답변대기'
+   	</if>
+   	<if test="q_status == '답변완료'">
+		AND q.Q_STATUS='답변완료'
+   	</if>
+   	<if test="q_status == '삭제글'">
+		AND q.Q_DEL = 1
+    </if>
+</select>
+
+<select id="getProductQna" parameterType="Integer" resultType="verni.co.kr.qna.QnaDto">
+	SELECT q.Q_NO, q.M_ID, q.P_NO, p.P_NAME, q.Q_TITLE, q.Q_CATE, q.Q_CONTENT, q.Q_SECRIT, q.Q_DEL, 
+			q.Q_WDATE, q.Q_STATUS, m.MS_NO, m.MS_CATEGORY
+	FROM QNA q, PRODUCT p, MESSAGE m
+	WHERE q.P_NO = p.P_NO AND q.Q_NO = m.MS_NOS AND m.MS_CATEGORY = '상품문의'
+	AND Q_NO=#{q_no}
+</select>
+
+<select id="getpdQnaReply" resultType="verni.co.kr.qna.Q_ReplyDto">
+	SELECT QR_NO, Q_NO, QR_WDATE, QR_CONTENT
+	FROM Q_REPLY
+	WHERE Q_NO=#{q_no}
+</select>
+
+<update id="pdQnaDelete" parameterType="Integer">
+	UPDATE QNA
+	SET Q_DEL = 1
+	WHERE Q_NO=#{q_no}
+</update>
+
+<insert id="pdQnaReplyWrite" parameterType="verni.co.kr.qna.Q_ReplyDto">
+	INSERT INTO Q_REPLY(QR_NO, Q_NO, QR_CONTENT)
+	VALUES(NO_Q_REPLY.NEXTVAL, #{q_no}, #{qr_content})
+</insert>
+
+<update id="pdQnaStatusUpdate" parameterType="Integer">
+	UPDATE QNA
+	SET Q_STATUS='답변완료'
+	WHERE Q_NO=#{q_no}
+</update>
+
+<update id="pdQnaReplyUpdate" parameterType="verni.co.kr.qna.Q_ReplyDto">
+	UPDATE Q_REPLY
+	SET QR_CONTENT=#{qr_content}
+	WHERE Q_NO=#{q_no}
+</update>
+
+<!-- 리뷰관리 -->
+<!-- column : DB컬럼명, property : key 값 -->
+<resultMap type="HashMap" id="_pdReview">
+	<id column="r.R_NO" property="r.R_NO" />
+	<id column="r.M_ID" property="r.M_ID" />
+	<id column="r.P_NO" property="r.P_NO" />
+	<id column="p.P_NAME" property="p.P_NAME" />
+	<id column="r.O_NUMBER" property="r.O_NUMBER" />
+	<id column="r.R_SCOPE" property="r.R_SCOPE" />
+	<id column="r.R_CONTENT" property="r.R_CONTENT" />
+	<id column="r.R_STATUS" property="r.R_STATUS" />
+	<id column="r.R_FILENAME" property="r.R_FILENAME" />
+	<id column="r.R_NEWFILENAME" property="r.R_NEWFILENAME" />
+	<id column="r.R_LIKECOUNT" property="r.R_LIKECOUNT" />
+	<id column="r.R_DEL" property="r.R_DEL" />
+	<id column="r.R_WDATE" property="r.R_WDATE" />
+</resultMap>
+<select id="pdReviewList" parameterType="verni.co.kr.admin.AdminParam" resultMap="_pdReview">
+	SELECT R_NO, M_ID, P_NO, P_NAME, O_NUMBER, R_SCOPE, R_CONTENT, R_STATUS, R_FILENAME, R_NEWFILENAME,
+			R_LIKECOUNT, R_DEL, R_WDATE, MS_NO, MS_CATEGORY
+	FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY R_DEL ASC, R_STATUS ASC, R_NO DESC) AS RNUM,
+				r.R_NO, r.M_ID, r.P_NO, p.P_NAME, r.O_NUMBER, r.R_SCOPE, r.R_CONTENT, r.R_STATUS, r.R_FILENAME, r.R_NEWFILENAME,
+				r.R_LIKECOUNT, r.R_DEL, TO_CHAR(r.R_WDATE, 'YYYY-MM-DD') R_WDATE, m.MS_NO, m.MS_CATEGORY
+			FROM REVIEW r, PRODUCT p, MESSAGE m
+			WHERE r.P_NO = p.P_NO AND r.R_NO = m.MS_NOS AND m.MS_CATEGORY = '리뷰'
+	   		<if test="choice == '상품명'">
+				AND p.P_NAME LIKE '%'||#{search}||'%'
+			</if>
+	      	<if test="choice == '내용'">
+	      		AND r.R_CONTENT LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '작성자'">
+	      		AND r.M_ID LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '별점'">
+	      		AND r.R_SCOPE LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '답변여부'">
+	      		AND r.R_STATUS LIKE '%'||#{search}||'%'
+		    </if>
+		    <if test="r_status == '답변대기'">
+				AND r.R_STATUS='답변대기'
+	      	</if>
+	      	<if test="r_status == '답변완료'">
+				AND r.R_STATUS='답변완료'
+	      	</if>
+	      	<if test="r_status == '삭제글'">
+				AND r.R_DEL = 1
+		    </if>
+			ORDER BY R_DEL ASC, R_STATUS ASC, R_NO DESC)
+	WHERE RNUM BETWEEN #{start} AND #{end}
+</select>
+
+<!-- 리뷰 총 수 -->
+
+<select id="getProductReviewCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM REVIEW r, PRODUCT p, MESSAGE m
+	WHERE r.P_NO = p.P_NO AND r.R_NO = m.MS_NOS AND m.MS_CATEGORY = '리뷰'
+	<if test="choice == '상품명'">
+		AND p.P_NAME LIKE '%'||#{search}||'%'
+	</if>
+	<if test="choice == '내용'">
+		AND r.R_CONTENT LIKE '%'||#{search}||'%'
+	</if>
+	<if test="choice == '작성자'">
+		AND r.M_ID LIKE '%'||#{search}||'%'
+	</if>
+	<if test="choice == '별점'">
+		AND r.R_SCOPE LIKE '%'||#{search}||'%'
+	</if>
+	<if test="choice == '답변여부'">
+		AND r.R_STATUS LIKE '%'||#{search}||'%'
+	</if>
+	<if test="r_status == '답변대기'">
+		AND r.R_STATUS='답변대기'
+   	</if>
+   	<if test="r_status == '답변완료'">
+		AND r.R_STATUS='답변완료'
+   	</if>
+   	<if test="r_status == '삭제글'">
+		AND r.R_DEL = 1
+    </if>
+</select>
+
+<select id="getProductReview" parameterType="Integer" resultType="verni.co.kr.review.ReviewDto">
+	SELECT r.R_NO, r.M_ID, r.P_NO, p.P_NAME, r.O_NUMBER, r.R_SCOPE, r.R_CONTENT, r.R_STATUS, r.R_FILENAME, r.R_NEWFILENAME,
+			r.R_LIKECOUNT, r.R_DEL, r.R_WDATE, m.MS_NO, m.MS_CATEGORY
+	FROM REVIEW r, PRODUCT p, MESSAGE m
+	WHERE r.P_NO = p.P_NO AND r.R_NO = m.MS_NOS AND m.MS_CATEGORY = '리뷰'
+	AND R_NO=#{r_no}
+</select>
+
+<select id="getpdReviewReply" resultType="verni.co.kr.review.R_ReplyDto">
+	SELECT RP_NO, R_NO, RP_WDATE, RP_CONTENT
+	FROM R_REPLY
+	WHERE R_NO=#{r_no}
+</select>
+
+<update id="pdReviewDelete" parameterType="Integer">
+	UPDATE REVIEW
+	SET R_DEL = 1
+	WHERE R_NO=#{r_no}
+</update>
+
+<insert id="pdReviewReplyWrite" parameterType="verni.co.kr.review.R_ReplyDto">
+	INSERT INTO R_REPLY(RP_NO, R_NO, RP_CONTENT)
+	VALUES(NO_R_REPLY.NEXTVAL, #{r_no}, #{rp_content})
+</insert>
+
+<update id="pdReviewStatusUpdate" parameterType="Integer">
+	UPDATE REVIEW
+	SET R_STATUS='답변완료'
+	WHERE R_NO=#{r_no}
+</update>
+
+<update id="pdReviewReplyUpdate" parameterType="verni.co.kr.review.R_ReplyDto">
+	UPDATE R_REPLY
+	SET RP_CONTENT=#{rp_content}
+	WHERE R_NO=#{r_no}
+</update>
+
+<!-- 쿠폰관리 -->
+
+<select id="couponList" parameterType="verni.co.kr.admin.AdminParam" resultType="verni.co.kr.benefit.CouponDto">
+	SELECT CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE
+	FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY CP_USE DESC, CP_NO DESC) AS RNUM,
+					CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE
+			FROM COUPON
+			WHERE 1=1
+			<if test="choice == '분류'">
+	      		AND CP_CATEGORY LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '쿠폰명'">
+	      		AND CP_NAME LIKE '%'||#{search}||'%'
+	      	</if>
+	      	<if test="choice == '사용여부'">
+	      		AND CP_USE LIKE '%'||#{search}||'%'
+	      	</if>
+      		<if test="cp_use == '활성'">
+				AND CP_USE='활성'
+		   	</if>
+		   	<if test="cp_use == '비활성'">
+				AND CP_USE='비활성'
+		   	</if>
+			ORDER BY CP_USE DESC, CP_NO DESC)
+	WHERE RNUM BETWEEN #{start} AND #{end}
+</select>
+
+<!-- 쿠폰 총 갯수 -->
+<select id="getCouponCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM COUPON
+	WHERE 1=1
+	<if test="choice == '분류'">
+     	AND CP_CATEGORY LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '쿠폰명'">
+     	AND CP_NAME LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '사용여부'">
+     	AND CP_USE LIKE '%'||#{search}||'%'
+    </if>
+    <if test="cp_use == '활성'">
+		AND CP_USE='활성'
+   	</if>
+   	<if test="cp_use == '비활성'">
+		AND CP_USE='비활성'
+   	</if>
+</select>
+
+<select id="getCoupon" parameterType="Integer" resultType="verni.co.kr.benefit.CouponDto">
+	SELECT CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE
+	FROM COUPON
+	WHERE CP_NO=#{cp_no}
+</select>
+
+<delete id="couponDelete" parameterType="Integer">
+	DELETE
+	FROM COUPON
+	WHERE CP_NO=#{cp_no}
+</delete>
+
+<insert id="addCoupon" parameterType="verni.co.kr.benefit.CouponDto">
+	INSERT INTO COUPON(CP_NO, CP_CATEGORY, CP_NAME, CP_AMOUNT, CP_LIMITMIN, CP_LIMITMAX, CP_USE)
+	VALUES(NO_COUPON.NEXTVAL, #{cp_category}, #{cp_name}, #{cp_amount}, #{cp_limitmin}, #{cp_limitmax}, #{cp_use})
+</insert>
+
+<!-- 온라인문의(1:1) -->
+<!-- column : DB컬럼명, property : key 값 -->
+<resultMap type="HashMap" id="_onlineQna">
+	<id column="o.MQ_NO" property="o.MQ_NO" />
+	<id column="o.MQ_REF" property="o.MQ_REF" />
+	<id column="o.M_ID" property="o.M_ID" />
+	<id column="o.MQ_TITLE" property="o.MQ_TITLE" />
+	<id column="o.MQ_CONTENT" property="o.MQ_CONTENT" />
+	<id column="o.MQ_CATEGORY" property="o.MQ_CATEGORY" />
+	<id column="o.MQ_TYPE" property="o.MQ_TYPE" />
+	<id column="o.MQ_STATUS" property="o.MQ_STATUS" />
+	<id column="o.MQ_FILENAME" property="o.MQ_FILENAME" />
+	<id column="o.MQ_NEWFILENAME" property="o.MQ_NEWFILENAME" />
+	<id column="o.MQ_DEL" property="o.MQ_DEL" />
+	<id column="o.MQ_WDATE" property="o.MQ_WDATE" />
+	<id column="m.MS_NO" property="m.MS_NO" />
+</resultMap>
+<select id="onlineQnaList" parameterType="verni.co.kr.admin.AdminParam" resultMap="_onlineQna">
+	SELECT MQ_NO, MQ_REF, M_ID, MQ_TITLE, MQ_CONTENT, MQ_CATEGORY, MQ_TYPE, MQ_STATUS, 
+			MQ_FILENAME, MQ_NEWFILENAME, MQ_DEL, MQ_WDATE, MS_NO, MS_CATEGORY
+	FROM
+			(SELECT ROW_NUMBER()OVER(ORDER BY MQ_DEL ASC, MQ_STATUS ASC, MQ_NO DESC) AS RNUM,
+					o.MQ_NO, o.MQ_REF, o.M_ID, o.MQ_TITLE, o.MQ_CONTENT, o.MQ_CATEGORY, o.MQ_TYPE, o.MQ_STATUS, 
+					o.MQ_FILENAME, o.MQ_NEWFILENAME, o.MQ_DEL, TO_CHAR(o.MQ_WDATE, 'YYYY-MM-DD') MQ_WDATE, m.MS_NO, m.MS_CATEGORY
+			FROM MYQNA o, MESSAGE m
+			WHERE o.MQ_NO = m.MS_NOS AND m.MS_CATEGORY = '온라인문의'
+				<if test="choice == '문의유형'">
+			     	AND o.MQ_CATEGORY LIKE '%'||#{search}||'%'
+			    </if>
+			   	<if test="choice == '제목'">
+			     	AND o.MQ_TITLE LIKE '%'||#{search}||'%'
+			   	</if>
+			   	<if test="choice == '내용'">
+			    	AND o.MQ_CONTENT LIKE '%'||#{search}||'%'
+			   	</if>
+			   	<if test="choice == '작성자'">
+			   		AND o.M_ID LIKE '%'||#{search}||'%'
+		   		</if>
+		      	<if test="choice == '답변여부'">
+		      		AND o.MQ_STATUS LIKE '%'||#{search}||'%'
+		      	</if>
+	      		<if test="mq_status == 1">
+					AND o.MQ_STATUS = 1
+			   	</if>
+			   	<if test="mq_status == 2">
+					AND o.MQ_STATUS = 2
+			   	</if>
+			   	<if test="mq_status == 3">
+					AND o.MQ_DEL = 1
+			   	</if>
+			ORDER BY MQ_DEL ASC, MQ_STATUS ASC, MQ_NO DESC)
+	WHERE RNUM BETWEEN #{start} AND #{end}
+</select>
+
+<!-- 문의글 총 수 -->
+<select id="getOnlineQnaCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM MYQNA o, MESSAGE m
+	WHERE o.MQ_NO = m.MS_NOS AND m.MS_CATEGORY = '온라인문의'
+		<if test="choice == '문의유형'">
+	     	AND o.MQ_CATEGORY LIKE '%'||#{search}||'%'
+	    </if>
+	   	<if test="choice == '제목'">
+	     	AND o.MQ_TITLE LIKE '%'||#{search}||'%'
+	   	</if>
+	   	<if test="choice == '내용'">
+	    	AND o.MQ_CONTENT LIKE '%'||#{search}||'%'
+	   	</if>
+	   	<if test="choice == '작성자'">
+	   		AND o.M_ID LIKE '%'||#{search}||'%'
+   		</if>
+      	<if test="choice == '답변여부'">
+      		AND o.MQ_STATUS LIKE '%'||#{search}||'%'
+      	</if>
+	   	<if test="mq_status == 1">
+			AND o.MQ_STATUS = 1
+	   	</if>
+	   	<if test="mq_status == 2">
+			AND o.MQ_STATUS = 2
+	   	</if>
+   		<if test="mq_status == 3">
+			AND o.MQ_DEL = 1
+	   	</if>
+</select>
+
+<select id="getOnlineQna" parameterType="Integer" resultType="verni.co.kr.myqna.MyqnaDto">
+	SELECT o.MQ_NO, o.MQ_REF, o.M_ID, o.MQ_TITLE, o.MQ_CONTENT, o.MQ_CATEGORY, o.MQ_TYPE, o.MQ_STATUS, 
+			o.MQ_FILENAME, o.MQ_NEWFILENAME, o.MQ_DEL, o.MQ_WDATE, m.MS_NO, m.MS_CATEGORY
+	FROM MYQNA o, MESSAGE m
+	WHERE o.MQ_NO = m.MS_NOS AND m.MS_CATEGORY = '온라인문의'
+	AND MQ_NO=#{mq_no}
+</select>
+
+<select id="getOnlineQnaReply" resultType="verni.co.kr.myqna.MQ_ReplyDto">
+	SELECT MQR_NO, MQ_NO, MQR_WDATE, MQR_CONTENT
+	FROM MQ_REPLY
+	WHERE MQ_NO=#{mq_no}
+</select>
+
+<update id="onlineQnaDelete" parameterType="Integer">
+	UPDATE MYQNA
+	SET MQ_DEL = 1
+	WHERE MQ_NO=#{mq_no}
+</update>
+
+<insert id="onlineQnaReplyWrite" parameterType="verni.co.kr.myqna.MQ_ReplyDto">
+	INSERT INTO MQ_REPLY(MQR_NO, MQ_NO, MQR_CONTENT)
+	VALUES(NO_MQ_REPLY.NEXTVAL, #{mq_no}, #{mqr_content})
+</insert>
+
+<update id="msStatusUpdate" parameterType="Integer">
+	UPDATE MESSAGE
+	SET MS_STATUS = '처리완료'
+	WHERE MS_NO=#{ms_no}
+</update>
+
+<update id="onlineQnaStatusUpdate" parameterType="Integer">
+	UPDATE MYQNA
+	SET MQ_STATUS = 2, MQ_TYPE = 2
+	WHERE MQ_NO=#{mq_no}
+</update>
+
+<update id="onlineQnaReplyUpdate" parameterType="verni.co.kr.myqna.MQ_ReplyDto">
+	UPDATE MQ_REPLY
+	SET MQR_CONTENT=#{mqr_content}
+	WHERE MQ_NO=#{mq_no}
+</update>
+
+
+<!-- FAQ -->
+
+<select id="adminFaq" parameterType="verni.co.kr.admin.AdminParam" resultType="verni.co.kr.faq.FaqDto">
+	SELECT F_NO, F_CATEGORY, F_TITLE, F_CONTENT
+	FROM 
+		(SELECT ROW_NUMBER()OVER(ORDER BY F_NO DESC) AS RNUM,
+				F_NO, F_CATEGORY, F_TITLE, F_CONTENT
+		FROM FAQ
+		WHERE 1=1
+		<if test="choice == '분류'">
+      		AND F_CATEGORY LIKE '%'||#{search}||'%'
+      	</if>
+      	<if test="choice == '제목'">
+      		AND F_TITLE LIKE '%'||#{search}||'%'
+      	</if>
+      	<if test="choice == '내용'">
+      		AND F_CONTENT LIKE '%'||#{search}||'%'
+      	</if>
+		ORDER BY F_NO DESC)
+	WHERE RNUM BETWEEN #{start} AND #{end}
+</select>
+
+<!-- FAQ 총 수 -->
+<select id="getFaqCount" parameterType="verni.co.kr.admin.AdminParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0)
+	FROM FAQ
+	WHERE 1=1
+	<if test="choice == '분류'">
+    	AND F_CATEGORY LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '제목'">
+     	AND F_TITLE LIKE '%'||#{search}||'%'
+    </if>
+    <if test="choice == '내용'">
+     	AND F_CONTENT LIKE '%'||#{search}||'%'
+    </if>
+</select>	
+
+<select id="getFaq" parameterType="Integer" resultType="verni.co.kr.faq.FaqDto">
+	SELECT F_NO, F_CATEGORY, F_TITLE, F_CONTENT
+	FROM FAQ
+	WHERE F_NO=#{f_no}
+</select>
+
+<update id="faqUpdate" parameterType="verni.co.kr.faq.FaqDto">
+	UPDATE FAQ
+	SET F_CATEGORY=#{f_category}, F_TITLE=#{f_title}, F_CONTENT=#{f_content}
+	WHERE F_NO=#{f_no}
+</update>
+
+<delete id="faqDelete" parameterType="Integer">
+	DELETE
+	FROM FAQ
+	WHERE F_NO=#{f_no}
+</delete>
+
+</mapper>

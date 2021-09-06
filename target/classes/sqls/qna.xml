@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Qna">
+ <!--  고쳐야함 .. 고장남 . -->
+<select id="qnaList" parameterType="verni.co.kr.qna.QnaParam" resultType="verni.co.kr.qna.QnaDto">
+	SELECT Q_NO, M_ID, P_NO, Q_TITLE, Q_CATE, Q_CONTENT, Q_SECRIT, Q_DEL, Q_STATUS, Q_WDATE, QR_NO, QR_WDATE, QR_CONTENT
+	FROM (SELECT ROW_NUMBER()OVER(ORDER BY Q_WDATE DESC) AS RNUM, 
+		  B.Q_NO, M_ID, P_NO, Q_TITLE, Q_CATE, Q_CONTENT, Q_SECRIT, Q_DEL, Q_STATUS, Q_WDATE, QR_NO, QR_WDATE, QR_CONTENT
+	FROM Q_REPLY A, QNA B	
+	WHERE A.Q_NO(+) = B.Q_NO
+	AND P_NO=#{p_no}
+	AND Q_DEL=0
+	ORDER BY Q_WDATE DESC)
+	WHERE RNUM BETWEEN ${start} AND ${end}
+</select>
+
+<select id="getQnaNum" parameterType="verni.co.kr.qna.QnaParam" resultType="Integer">
+	SELECT NVL(COUNT(*), 0) 
+	FROM Q_REPLY A, QNA B
+	WHERE A.Q_NO(+) = B.Q_NO
+	AND P_NO=#{p_no}
+	AND Q_DEL=0
+</select>
+
+
+
+<insert id="qnaWrite" parameterType="verni.co.kr.qna.QnaDto">
+	INSERT INTO QNA(Q_NO, M_ID, P_NO, Q_TITLE, Q_CATE, Q_CONTENT, Q_SECRIT, Q_STATUS)
+	VALUES(NO_QNA.NEXTVAL, #{m_id}, #{p_no}, #{q_title}, #{q_cate}, #{q_content}, #{q_secrit}, '답변대기')
+</insert>
+
+<select id="getQna" parameterType="java.lang.Integer" resultType="verni.co.kr.qna.QnaDto">
+	SELECT Q_NO, M_ID, Q_TITLE, Q_CATE, Q_CONTENT, Q_SECRIT, Q_DEL, Q_WDATE, b.P_NO, 
+       		c.P_BRAND, c.P_NAME, c.P_TYPE1, c.P_NEWIMAGE1
+	FROM   QNA b, PRODUCT c 
+	WHERE  b.P_NO = c.P_NO
+	AND    b.Q_NO =#{q_no}
+	AND Q_DEL=0
+</select>
+
+<delete id="qnaDel" parameterType="java.lang.Integer">
+	DELETE QNA
+	WHERE Q_NO=#{q_no}
+</delete>
+
+
+<delete id="messageDel" parameterType="java.lang.Integer">
+	DELETE MESSAGE
+	WHERE MS_NOS=#{q_no}
+</delete>
+
+
+
+<!-- 수정하기 -->
+<update id="qnaUpdate" parameterType="verni.co.kr.qna.QnaDto">
+	UPDATE QNA SET
+	Q_TITLE=#{q_title}, Q_CATE=#{q_cate}, Q_CONTENT=#{q_content}, Q_SECRIT=#{q_secrit}
+	WHERE Q_NO=#{q_no}
+</update>
+
+
+
+
+
+
+
+
+<!-- 리플 상태 변경 -->
+<update id="statusUpdate" parameterType="_int">
+	UPDATE QNA SET Q_STATUS='답변완료'
+	WHERE Q_NO=#{q_no}
+</update>
+
+<insert id="qReplyWrite" parameterType="verni.co.kr.qna.Q_ReplyDto">
+	INSERT INTO Q_REPLY(QR_NO, Q_NO, QR_CONTENT)
+	VALUES(NO_Q_REPLY.NEXTVAL, #{q_no}, #{qr_content})
+</insert>
+
+
+<!-- 시퀀스 맥스값 구하기 -->
+<select id="getMaxNo" resultType="_int">
+	SELECT NVL(MAX(Q_NO),1) FROM QNA
+</select>
+
+</mapper>

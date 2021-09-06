@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Message">
+	<insert id="messageAdd" parameterType="verni.co.kr.message.MessageDto">
+		INSERT INTO MESSAGE(MS_NO, MS_STATUS, MS_CATEGORY, MS_CONTENT, MS_NOS, MS_RAGDATE)
+		VALUES(NO_MESSAGE.NEXTVAL, #{ms_status}, #{ms_category}, #{ms_content}, #{ms_nos}, SYSDATE)
+	</insert>
+
+	<select id="getMessageList" parameterType="verni.co.kr.message.MessageParam" resultType="verni.co.kr.message.MessageDto">
+		SELECT MS_NO, MS_STATUS, MS_CATEGORY, MS_CONTENT, MS_RAGDATE, MS_NOS
+		FROM
+			 (SELECT ROW_NUMBER()OVER(ORDER BY MS_STATUS ASC, MS_RAGDATE DESC) AS RNUM, 
+			 		 MS_NO, MS_STATUS, MS_CATEGORY, MS_CONTENT, MS_RAGDATE, MS_NOS
+			 FROM MESSAGE
+			 WHERE 1=1
+			
+	            <if test="sorting == 'all'">
+	            	<if test="choice != null and choice != '' and search != null and search != ''">
+				 		AND MS_CATEGORY=#{choice}
+				 		AND MS_CONTENT LIKE '%'||#{search}||'%'
+				 	</if>
+<!-- 				 	<if test="choice == null and choice == '' and search == null and search == ''">
+				 	</if> -->
+	            </if>
+	            <if test="sorting != 'all'">
+	             AND MS_STATUS=#{sorting}
+	             	<if test="choice != null and choice != '' and search != null and search != ''">
+				 		AND MS_CATEGORY=#{choice}
+				 		AND MS_CONTENT LIKE '%'||#{search}||'%'
+				 	</if>
+<!-- 				 	<if test="choice == null and choice == '' and search == null and search == ''">
+				 	</if> -->
+	            </if>
+         	 
+        	 ORDER BY MS_STATUS ASC, MS_RAGDATE DESC) 
+    	WHERE RNUM BETWEEN ${start} AND ${end}
+	</select>
+
+	<!-- 메세지총수 -->
+	<select id="getMessageTotal" parameterType="verni.co.kr.message.MessageParam" resultType="Integer">
+		SELECT NVL(COUNT(*), 0)
+		FROM MESSAGE
+		WHERE 1=1
+		<if test="sorting == 'all'">
+	      	<if test="choice != null and choice != '' and search != null and search != ''">
+				AND MS_CATEGORY=#{choice}
+				AND MS_CONTENT LIKE '%'||#{search}||'%'
+			</if>
+<!-- 	 	<if test="choice == null and choice == '' and search == null and search == ''">
+			</if> -->
+	     </if>
+	     <if test="sorting != 'all'">
+	         AND MS_STATUS=#{sorting}
+	       	<if test="choice != null and choice != '' and search != null and search != ''">
+				AND MS_CATEGORY=#{choice}
+		 		AND MS_CONTENT LIKE '%'||#{search}||'%'
+			</if>
+<!-- 			 	<if test="choice == null and choice == '' and search == null and search == ''">
+			 	</if> -->
+	      </if>
+	</select>
+
+	<update id="statusUpdate" parameterType="Integer" >
+		UPDATE MESSAGE SET MS_STATUS='처리완료' WHERE MS_NO=#{ms_no}
+	</update>
+	
+	
+	
+	<select id="getOrderMaxNo" resultType="_int">
+		SELECT NVL(MAX(O_NO),1) FROM ORDERS
+	</select>
+	
+	
+	<!-- 주문취소용 -->
+	<select id="getMsno" parameterType="_int" resultType="_int">
+		SELECT MS_NO 
+		FROM  ORDERS O, MESSAGE M,ORDER_DETAIL OD
+		WHERE  M.MS_NOS = O.O_NO
+		AND  O.O_NUMBER = OD.O_NUMBER
+		AND OD_NO=#{od_no}
+	</select>
+	
+	<update id="msgUpdate"   parameterType="verni.co.kr.message.MessageDto">
+		UPDATE MESSAGE
+		SET MS_STATUS=#{ms_status}, MS_CONTENT=#{ms_content} , MS_RAGDATE=SYSDATE
+		WHERE MS_NO=#{ms_no}
+	</update>
+	
+	
+	
+	
+</mapper>

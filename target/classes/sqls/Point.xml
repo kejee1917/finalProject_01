@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Point">
+
+<select id="getPointList" parameterType="String" resultType="verni.co.kr.benefit.PointUseDto">
+   SELECT PU.PU_NO, P.P_NO, PU.PU_CATEGORY, PU.O_NUMBER, PU.PU_AMOUNT, PU.PU_NAME, PU.PU_USEDATE, P.P_USE, P.P_ENDDATE, P.P_NAME, P.P_STARTDATE
+   FROM POINT P, POINT_USE PU
+   WHERE P.P_NO=PU.P_NO
+   AND P.M_ID=#{m_id}
+   ORDER BY PU.PU_NO DESC
+</select> 
+
+
+<!-- 0818 은지추가 마이페이지에서 뿌려질 포인트 -->
+<select id="getPoint" parameterType="String" resultType="Integer">
+   SELECT M_POINT
+   FROM MEMBER
+   WHERE M_ID=#{m_id}
+</select>
+</mapper>

@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+
+<definition name="main.tiles" template="/WEB-INF/views/tiles/layouts-tiles.jsp">
+	<put-attribute name="header" value="/WEB-INF/views/commons/header.jsp"/>
+	<put-attribute name="top_inc" value="/WEB-INF/views/commons/top_inc.jsp"/>
+	<put-attribute name="top_menu" value="/WEB-INF/views/commons/top_menu.jsp"/>
+	<put-attribute name="main" value="/WEB-INF/views/main/main.jsp"/>
+	<put-attribute name="bottom_inc" value="/WEB-INF/views/commons/bottom_inc.jsp"/>
+</definition>
+
+<definition name="productList.tiles" template="/WEB-INF/views/tiles/layouts-tiles-plist.jsp">
+	<put-attribute name="header" value="/WEB-INF/views/commons/header.jsp"/>
+	<put-attribute name="top_inc" value="/WEB-INF/views/commons/top_inc.jsp"/>
+	<put-attribute name="top_menu" value="/WEB-INF/views/commons/top_menu.jsp"/>
+	<put-attribute name="top" value="/WEB-INF/views/product/productSearch.jsp"/>
+	<put-attribute name="content" value="/WEB-INF/views/product/productList.jsp"/>
+	<put-attribute name="bottom_inc" value="/WEB-INF/views/commons/bottom_inc.jsp"/>
+</definition>
+
+<definition name="productWrite.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/product/productWrite.jsp"/>
+</definition> 
+
+<definition name="productSaleList.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/product/productSaleList.jsp"/>
+</definition>
+
+<definition name="productNewList.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/product/productNewList.jsp"/>
+</definition>
+
+
+<!--  제품 디테일 -->
+<definition name="productDetail.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/product/productDetail.jsp"/>
+</definition>
+
+<definition name="faq.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/footerPage/faqList.jsp"/>
+</definition>
+
+<definition name="faqWrite.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/footerPage/faqWrite.jsp"/>
+</definition>
+<definition name="content.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/footerPage/content.jsp"/>
+</definition>
+<definition name="event.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/event/event.jsp"/>
+</definition>
+
+<definition name="userInfo.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/footerPage/userInfo.jsp"/>
+</definition>
+<definition name="terms.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/footerPage/terms.jsp"/>
+</definition>
+<!-- 에르메스 -->
+<definition name="hermesList.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/product/hermesList.jsp"/>
+</definition>
+
+
+<definition name="about.tiles"  template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+     <put-attribute name="main" value="/WEB-INF/views/footerPage/about.jsp"/>
+</definition>
+<!-- 초희 부분 -->
+
+
+
+
+
+
+
+<!-- 은지 부분 -->
+
+<!-- 0728 은지추가 로그인 부분-->
+<definition name="login.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/member/login.jsp"/>
+</definition>
+
+<definition name="regi.tiles" extends="login.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/member/regi.jsp"/>
+</definition>
+
+<!-- 0730 은지 추가 비번 찾기 -->
+<definition name="pwdFind.tiles" extends="login.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/member/pwdFind.jsp"/>
+</definition>
+
+
+<!-- 0730 은지 추가 마이페이지  -->
+<definition name="mypage.tiles" template="/WEB-INF/views/tiles/layouts-tiles-mypage.jsp">
+	<put-attribute name="header" value="/WEB-INF/views/commons/header.jsp"/>
+	<put-attribute name="top_inc" value="/WEB-INF/views/commons/top_inc.jsp"/>
+	<put-attribute name="top_menu" value="/WEB-INF/views/commons/top_menu.jsp"/>
+	<put-attribute name="left_menu" value="/WEB-INF/views/mypage/myMenu.jsp"/>
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myInfo.jsp"/>
+	<put-attribute name="bottom_inc" value="/WEB-INF/views/commons/bottom_inc.jsp"/>
+</definition>
+
+<!-- 0803 은지 추가 마이페이지  -->
+<definition name="myqna.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myqna.jsp"/>
+</definition>
+
+<definition name="writeMyqna.tiles" template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/writeMyqna.jsp"/>
+</definition>
+
+<!-- 0806 은지 수정 1:1질문 -->
+<definition name="readMyqna.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/readMyqna.jsp"/>
+</definition>
+
+<!-- 0806 은지 추가 캘린더 -->
+<definition name="mypageCal.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/mypageCal.jsp"/>
+</definition>
+
+<!-- 0806 은지 추가 탈퇴 -->
+<definition name="withdraw.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/withdraw.jsp"/>
+</definition>
+
+<!-- 0806 은지 추가 홈 -->
+<definition name="mypageHome.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/mypageHome.jsp"/>
+</definition>
+
+<!-- 0807 은지 추가 포인트 -->
+<definition name="mypoint.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/mypoint.jsp"/>
+</definition>
+
+<!-- 0809 은지 추가 리뷰 -->
+<definition name="myreview.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myreview_written.jsp"/>
+</definition>
+
+<!-- 0810 은지 추가 리뷰 -->
+<definition name="myreview_valid.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myreview_valid.jsp"/>
+</definition>
+
+<!-- 0811 은지 추가 쿠폰 -->
+<definition name="mycoupon.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/mycoupon.jsp"/>
+</definition>
+
+<!-- 0817 은지 추가 나의 주문현황 -->
+<definition name="myorder.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myorder.jsp"/>
+</definition>
+
+<!-- 0819 은지 추가 리뷰읽기 -->
+<definition name="reviewRead.tiles" template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/readReview.jsp"/>
+</definition>
+
+<!-- 0824 네아로 추가 -->
+<definition name="callback.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/member/callback.jsp"/>
+</definition>
+
+<!-- 0824 은지 추가 id 찾기 -->
+<definition name="idFind.tiles" extends="login.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/member/idFind.jsp"/>
+</definition>
+
+<!-- 0824 은지 추가 id 찾기 이후 -->
+<definition name="idFindAf.tiles" extends="login.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/member/idFindAf.jsp"/>
+</definition>
+
+<!-- 0826 myqna update 전 -->
+<definition name="myqnaUpdate.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myqnaUpdate.jsp"/>
+</definition>
+
+<!-- 0830 상품 qna 리스트 -->
+<definition name="myproductqna.tiles" extends="mypage.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myproductqna.jsp"/>
+</definition>
+
+<!-- 0830 리뷰 수정 전 (팝업) -->
+<definition name="reviewUpdate.tiles" template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myreviewUpdate.jsp"/>
+</definition>
+
+<!-- 0831 상품 문의글 읽기 (팝업) -->
+<definition name="myproductqnaRead.tiles" template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+	<put-attribute name="main" value="/WEB-INF/views/mypage/myproductqnaRead.jsp"/>
+</definition>
+
+<definition name="myproductqnaUpdate.tiles" template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+	<put-attribute name="main" value="/WEB-INF/views/popup/qnaUpdate.jsp"/>
+</definition>
+ 
+<!-- 은지 부분 -->
+
+
+
+
+
+
+
+<!-- 엄지 부분 -->
+<!-- 0730 엄지추가  qna 부분 -->
+<definition name="qna.tiles"  template="/WEB-INF/views/tiles/layouts-tiles-popup.jsp">
+     <put-attribute name="main" value="/WEB-INF/views/popup/qnaWrite.jsp"/>
+</definition>
+<!-- 0803 엄지추가  review 부분 -->
+<definition name="review.tiles"  extends="qna.tiles">
+     <put-attribute name="main" value="/WEB-INF/views/popup/reviewWrite.jsp"/>
+</definition>
+<!-- 0805 엄 추가 wish -->
+<definition name="wish.tiles"  extends="main.tiles">
+     <put-attribute name="main" value="/WEB-INF/views/wish/wishList.jsp"/>
+</definition>
+
+<definition name="r_reply.tiles"  extends="qna.tiles">
+     <put-attribute name="main" value="/WEB-INF/views/popup/r_replyWrite.jsp"/>
+</definition>
+<definition name="q_reply.tiles"  extends="qna.tiles">
+     <put-attribute name="main" value="/WEB-INF/views/popup/q_replyWrite.jsp"/>
+</definition>
+<definition name="reviewList.tiles"  extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/review/reviewList.jsp"/>
+</definition>
+
+<definition name="qnaUpdate.tiles" extends="qna.tiles">
+     <put-attribute name="main" value="/WEB-INF/views/popup/qnaUpdate.jsp"/>
+</definition>
+
+<!-- 엄지 부분 -->
+
+
+
+
+
+
+
+
+
+
+<!-- 효정 부분 -->
+<definition name="admin.tiles" template="/WEB-INF/views/tiles/layouts-tiles_admin.jsp">
+	<put-attribute name="header" value="/WEB-INF/views/admin/header.jsp"/>
+	<put-attribute name="top_inc" value="/WEB-INF/views/admin/top_inc.jsp"/>
+	<put-attribute name="main" value="/WEB-INF/views/admin/main.jsp"/>
+	<put-attribute name="left_menu" value="/WEB-INF/views/admin/left_menu.jsp"/>
+</definition>
+
+<!-- 8/27 추가 -->
+<definition name="adminchart.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/adminchart.jsp" />
+</definition>
+
+<!-- 0731 효정 추가 회원 관리페이지 -->
+<definition name="member.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/member.jsp"/>
+</definition>
+
+<!-- 0804 효정 추가 회원 관리 상세페이지 -->
+<definition name="memDetail.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/memDetail.jsp"/>
+</definition>
+
+<!-- 0805 효정 추가 회원 관리 수정페이지 -->
+<definition name="memUpdate.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/memUpdate.jsp"/>
+</definition>
+
+<!-- 0809 효정 추가 상품 관리 페이지 -->
+<definition name="product.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/product.jsp"/>
+</definition>
+
+<!-- 0815 효정 추가 상품 등록페이지 -->
+<definition name="productWrite.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/productWrite.jsp"/>
+</definition>
+
+<!-- 0814 효정 추가 상품 상세페이지 -->
+<definition name="pdDetail.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdDetail.jsp"/>
+</definition>
+
+<!-- 0815 효정 추가 상품 수정페이지 -->
+<definition name="pdUpdate.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdUpdate.jsp"/>
+</definition>
+
+<!-- 0816 효정 추가 상품문의 관리페이지 -->
+<definition name="productQna.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/productQna.jsp"/>
+</definition>
+
+<!-- 0818 효정 추가 상품문의 답변 상세페이지 -->
+<definition name="pdQnaReplyDetail.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdQnaReplyDetail.jsp"/>
+</definition>
+
+<!-- 0819 효정 추가 상품문의 답변 작성페이지 -->
+<definition name="pdQnaReplyWrite.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdQnaReplyWrite.jsp"/>
+</definition>
+
+<!-- 0819 효정 추가 상품문의 답변 수정페이지 -->
+<definition name="pdQnaReplyUpdate.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdQnaReplyUpdate.jsp"/>
+</definition>
+
+<!-- 0820 효정 추가 리뷰 관리페이지 -->
+<definition name="productReview.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/productReview.jsp"/>
+</definition>
+
+<!-- 0820 효정 추가 리뷰 답변 상세페이지 -->
+<definition name="pdReviewReplyDetail.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdReviewReplyDetail.jsp"/>
+</definition>
+
+<!-- 0820 효정 추가 리뷰 답변 작성페이지 -->
+<definition name="pdReviewReplyWrite.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdReviewReplyWrite.jsp"/>
+</definition>
+
+<!-- 0820 효정 추가 리뷰 답변 수정페이지 -->
+<definition name="pdReviewReplyUpdate.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/pdReviewReplyUpdate.jsp"/>
+</definition>
+
+<!-- 0826 효정 추가 쿠폰 관리 페이지 -->
+<definition name="coupon.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/coupon.jsp"/>
+</definition>
+
+<!-- 0826 효정 추가 쿠폰 등록 페이지 -->
+<definition name="addCoupon.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/addCoupon.jsp"/>
+</definition>
+
+<!-- 0821 효정 추가 온라인문의(1:1) 페이지 -->
+<definition name="onlineQna.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/onlineQna.jsp"/>
+</definition>
+
+<!-- 0821 효정 추가 온라인문의(1:1) 답변 상세페이지 -->
+<definition name="onlineQnaReplyDetail.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/onlineQnaReplyDetail.jsp"/>
+</definition>
+
+<!-- 0821 효정 추가 온라인문의(1:1) 답변 작성페이지 -->
+<definition name="onlineQnaReplyWrite.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/onlineQnaReplyWrite.jsp"/>
+</definition>
+
+<!-- 0821 효정 추가 온라인문의(1:1) 답변 수정페이지 -->
+<definition name="onlineQnaReplyUpdate.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/onlineQnaReplyUpdate.jsp"/>
+</definition>
+
+<!-- 0827 효정 추가 FAQ 페이지 -->
+<definition name="adminFaq.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/faq.jsp"/>
+</definition>
+
+<!-- 0827 효정 추가 FAQ 등록 페이지 -->
+<definition name="faqWrite.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/faqWrite.jsp"/>
+</definition>
+
+<!-- 0828 효정 추가 FAQ 상세 페이지 -->
+<definition name="faqDetail.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/faqDetail.jsp"/>
+</definition>
+
+<!-- 0830 효정 추가 FAQ 수정 페이지 -->
+<definition name="faqUpdate.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/faqUpdate.jsp"/>
+</definition>
+
+<!-- 효정 부분 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 초희 메세지 부분 -->
+<definition name="messageList.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/message/messageList.jsp"/>
+</definition>
+<definition name="adminOrder.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/message/adminOrder.jsp"/>
+</definition>
+<!-- 초희 메세지 부분 -->
+<!-- 진하 부분 -->
+<definition name="cart.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/cart/cart.jsp" />
+</definition>
+
+
+<definition name="payment.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/cart/payment.jsp" />
+</definition>
+
+
+<!-- 진하 부분 -->
+<!-- 8/9 추가 [진하] -->
+<definition name="complete.tiles" extends="main.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/cart/complete.jsp" />
+</definition>
+<!--  8/23 추가 [진하] -->
+<definition name="adminlist.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/adminlist.jsp" />
+</definition>
+
+<definition name="adminchat.tiles" extends="admin.tiles">
+	<put-attribute name="main" value="/WEB-INF/views/admin/adminchat.jsp" />
+</definition>
+<!-- 여기까지 -->
+
+
+
+</tiles-definitions>
+
+
+
+
+
+
+
+    

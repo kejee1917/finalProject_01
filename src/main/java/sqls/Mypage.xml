@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Mypage">
+
+ <!-- 주문/배송현황 -->
+ <!-- 
+<select id="getMyOrderList" parameterType="map" resultType="verni.co.kr.order.OrderDetailDto">
+SELECT O.O_NO, OD.OD_NO, O.O_TIME, O.O_NUMBER, P.P_NO, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME, OD.OD_AMOUNT, OD.OD_STATUS
+FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P
+WHERE O.O_NUMBER=OD.O_NUMBER
+AND OD.P_NO=P.P_NO
+AND O.M_ID=#{m_id}
+    <if test="caldate == 0">
+   AND O.O_TIME=SUBSTR(SYSDATE, 0, 9)
+   </if>
+   <if test="caldate gt 0">
+   AND (O.O_TIME BETWEEN SYSDATE-#{caldate} AND SYSDATE)
+   </if>
+ORDER BY O.O_NO DESC      
+</select>
+  -->
+  
+<select id="getMyOrderList" parameterType="map" resultType="verni.co.kr.order.OrderDetailDto">
+SELECT O.O_NO, OD.OD_NO, O.O_TIME, O.O_NUMBER, P.P_NO, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME, OD.OD_AMOUNT, OD.OD_STATUS, OD.OD_REVIEW
+FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P
+WHERE O.O_NUMBER=OD.O_NUMBER
+AND OD.P_NO=P.P_NO
+AND O.M_ID=#{m_id}
+AND O.O_TIME BETWEEN #{leftdate} AND #{rightdate}
+ORDER BY O.O_NO DESC
+</select>  
+  
+  
+<!-- 한달치만(맨처음에 실행) -->
+<select id="getMy1monthList" parameterType="String" resultType="verni.co.kr.order.OrderDetailDto">
+SELECT O.O_NO, OD.OD_NO, O.O_TIME, O.O_NUMBER, P.P_NO, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME, OD.OD_AMOUNT, OD.OD_STATUS, OD.OD_REVIEW
+FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P
+WHERE O.O_NUMBER=OD.O_NUMBER
+AND OD.P_NO=P.P_NO
+AND O.M_ID=#{m_id}
+AND (O.O_TIME BETWEEN SYSDATE-30 AND SYSDATE)
+ORDER BY O.O_NO DESC
+</select>
+
+<!-- 주문한 상품 정보 -->
+<select id="getProductInfo" parameterType="Integer" resultType="verni.co.kr.product.ProductDto">
+SELECT *
+FROM PRODUCT
+WHERE P_NO=#{p_no}
+</select>
+
+<!-- 주문 취소 신청 후 -->
+<update id="myorderCancelAf" parameterType="Integer">
+UPDATE ORDER_DETAIL
+SET OD_STATUS='취소진행중'
+WHERE OD_NO=#{od_no}
+</update>
+
+<!-- 총 구매 금액 -->
+<select id="totalpay" parameterType="String" resultType="Integer">
+SELECT M_TOTAL
+FROM MEMBER
+WHERE M_ID=#{m_id}
+</select>
+
+<!-- 배송중 개수 -->
+<select id="deliveryCount" parameterType="String" resultType="Integer">
+SELECT NVL(COUNT(*), 0)
+FROM ORDERS O, ORDER_DETAIL OD
+WHERE O.O_NUMBER=OD.O_NUMBER
+AND O.M_ID=#{m_id}
+AND OD.OD_STATUS='배송중'
+</select>
+
+<!-- 문의 답변 개수 -->
+<select id="answerCount" parameterType="String" resultType="Integer">
+SELECT NVL(COUNT(*), 0)
+FROM MYQNA
+WHERE M_ID=#{m_id}
+AND MQ_STATUS=2
+AND MQ_TYPE=2
+AND MQ_DEL=0
+</select>
+
+<!-- 작성가능한 리뷰 -->
+<select id="validReview" parameterType="String" resultType="verni.co.kr.order.OrderDetailDto">
+SELECT OD.OD_NO, P.P_NO, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME, OD.OD_STARTDATE, OD.OD_ENDDATE, OD.OD_STATUS, OD.OD_REVIEW
+FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P
+WHERE O.O_NUMBER=OD.O_NUMBER
+AND OD.P_NO=P.P_NO
+AND O.M_ID=#{m_id}
+AND (OD.OD_STATUS='배송완료' OR OD.OD_STATUS='회수완료')
+AND OD.OD_REVIEW IS NULL
+</select>
+
+<!-- 작성한 리뷰 리스트 -->
+<select id="writtenReview" parameterType="String" resultType="verni.co.kr.review.ReviewDto">
+SELECT R.R_NO, R.M_ID, P.P_NO, R.O_NUMBER, R.R_SCOPE, R.R_CONTENT, R.R_FILENAME, R.R_NEWFILENAME,
+      R.R_LIKECOUNT, R.R_DEL, R.R_WDATE, P.P_BRAND, P.P_NAME, P.P_NEWIMAGE1
+FROM REVIEW R, PRODUCT P
+WHERE R.P_NO=P.P_NO
+AND R.M_ID=#{m_id}
+AND R.R_DEL=0
+ORDER BY R.R_NO DESC
+</select>
+
+<!-- 리뷰 읽기 -->
+<select id="getReview" parameterType="verni.co.kr.review.ReviewDto" resultType="verni.co.kr.review.ReviewDto">
+SELECT b.M_ID, b.R_NO,  b.O_NUMBER, b.R_SCOPE, b.R_CONTENT, b.R_NEWFILENAME, b.R_LIKECOUNT, b.R_WDATE, b.R_FILENAME, 
+      b.P_NO, c.P_BRAND, c.P_NAME, c.P_TYPE1, c.P_NEWIMAGE1, b.R_STATUS, b.R_DEL
+FROM   REVIEW b, PRODUCT c 
+WHERE  b.P_NO = c.P_NO
+AND    b.R_NO = #{r_no}
+</select>
+
+<!-- 0826 리뷰 삭제 -->
+<update id="myreviewDelete" parameterType="Integer">
+UPDATE REVIEW
+SET R_DEL=1
+WHERE R_NO=#{r_no}
+</update>
+<!-- 0831 메세지 삭제 -->
+<delete id="messageDel" parameterType="Integer">
+DELETE MESSAGE
+WHERE MS_NOS=#{r_no}
+</delete>
+
+
+<!-- 0826리뷰답글 가져오기 -->
+<select id="getmyreviewReply" parameterType="Integer" resultType="verni.co.kr.review.ReviewDto">
+SELECT A.RP_NO, B.R_NO, A.RP_WDATE, A.RP_CONTENT, M_ID, P_NO, O_NUMBER, R_SCOPE, R_CONTENT, R_FILENAME, R_NEWFILENAME, 
+		R_LIKECOUNT, R_DEL, R_WDATE, R_STATUS
+FROM R_REPLY A, REVIEW B 
+WHERE A.R_NO = B.R_NO
+AND A.R_NO=#{r_no} AND B.R_STATUS='답변완료'
+</select>
+
+
+<!-- 0830 리뷰 수정하기 -->
+<update id="reviewUpdateAf" parameterType="verni.co.kr.review.ReviewDto">
+UPDATE REVIEW
+SET R_SCOPE=#{r_scope}, R_CONTENT=#{r_content}, R_FILENAME=#{r_filename,jdbcType=VARCHAR}, 
+	R_NEWFILENAME=#{r_newfilename}, R_WDATE=SYSDATE
+WHERE R_NO=#{r_no}
+</update>
+
+<!-- 주문 정보 달력에 뿌리기 -->
+<select id="getDeliveryComplete" parameterType="String" resultType="verni.co.kr.order.OrderDetailDto">
+SELECT P.P_NO, P.P_BRAND, P.P_NEWIMAGE1, P.P_NAME, OD.OD_STARTDATE, OD.OD_ENDDATE, OD.OD_STATUS, O.O_NUMBER, 
+		OD.OD_NO, OD.OD_PERIOD, OD.OD_AS, OD.OD_AMOUNT, O.O_TIME
+FROM ORDERS O, ORDER_DETAIL OD, PRODUCT P
+WHERE O.O_NUMBER=OD.O_NUMBER
+AND OD.P_NO=P.P_NO
+AND O.M_ID=#{m_id}
+AND (OD.OD_STATUS='배송완료' OR OD.OD_STATUS='회수완료')
+ORDER BY OD.OD_NO ASC
+</select>
+
+
+</mapper>
