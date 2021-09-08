@@ -1,5 +1,5 @@
 # 명품 대여 플랫폼, Share Verni
-
+ 
 ## 프로젝트 기획 의도
 
 ![image](https://user-images.githubusercontent.com/83866279/132180914-cd79301a-e531-4f6c-b1bd-fb25c9a472b2.png)
